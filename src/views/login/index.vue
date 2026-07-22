@@ -10,17 +10,17 @@ const activeTab = ref('account')
 
 <template>
   <div
-    class="relative grid min-h-dvh overflow-hidden bg-gradient-to-br from-blue-50 via-white to-slate-50 lg:grid-cols-[1fr_480px]"
+    class="relative grid min-h-dvh overflow-hidden bg-linear-to-br from-blue-50 via-white to-slate-50 lg:grid-cols-[1fr_480px]"
   >
     <!-- Decorative elements -->
     <div
       class="pointer-events-none absolute inset-0 bg-[linear-gradient(rgba(37,99,235,0.04)_1px,transparent_1px),linear-gradient(90deg,rgba(37,99,235,0.04)_1px,transparent_1px)] bg-[length:48px_48px]"
     />
     <div
-      class="pointer-events-none absolute -left-32 top-1/4 h-[500px] w-[500px] -translate-y-1/2 rounded-full bg-blue-500/10 blur-[120px]"
+      class="pointer-events-none absolute -left-32 top-1/4 h-125 w-125 -translate-y-1/2 rounded-full bg-blue-500/10 blur-[120px]"
     />
     <div
-      class="pointer-events-none absolute -bottom-32 -right-32 h-[400px] w-[400px] rounded-full bg-cyan-400/10 blur-[100px]"
+      class="pointer-events-none absolute -bottom-32 -right-32 h-100 w-100 rounded-full bg-cyan-400/10 blur-[100px]"
     />
 
     <!-- Left: Branding panel -->

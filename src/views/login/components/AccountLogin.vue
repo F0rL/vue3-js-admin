@@ -1,16 +1,14 @@
 <script setup>
-import { reactive, ref } from 'vue'
+import { reactive, ref, useTemplateRef } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
-import { ElMessage } from 'element-plus'
+import { message } from '@/utils/feedback'
 import { useUserStore } from '@/stores/modules/user'
-
-const emit = defineEmits(['switchToQrcode'])
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 
-const formRef = ref(null)
+const formRef = useTemplateRef('formRef')
 const submitting = ref(false)
 const rememberMe = ref(true)
 
@@ -41,12 +39,12 @@ async function handleSubmit() {
   try {
     await userStore.login({ username: form.username, password: form.password })
     await userStore.fetchUserInfo()
-    ElMessage.success('登录成功')
+    message.success('登录成功')
     const redirectPath =
       typeof route.query.redirect === 'string' && route.query.redirect ? route.query.redirect : '/'
     await router.push(redirectPath)
   } catch (error) {
-    ElMessage.error(error.message || '登录失败')
+    message.error(error.message || '登录失败')
   } finally {
     submitting.value = false
   }

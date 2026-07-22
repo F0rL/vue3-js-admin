@@ -136,7 +136,7 @@
 
 <script setup>
 import { ref, reactive } from 'vue'
-import { ElMessage } from 'element-plus'
+import { message } from '@/utils/feedback'
 
 const formRef = ref(null)
 const submittedData = ref(null)
@@ -187,10 +187,10 @@ function handleSubmit(formEl) {
   if (!formEl) return
   formEl.validate(valid => {
     if (valid) {
-      ElMessage.success('提交成功')
+      message.success('提交成功')
       submittedData.value = { ...form }
     } else {
-      ElMessage.error('请完善表单信息')
+      message.error('请完善表单信息')
     }
   })
 }

@@ -81,7 +81,7 @@
 
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { message, confirm } from '@/utils/feedback'
 import Search from '~icons/ep/search'
 import Refresh from '~icons/ep/refresh'
 import Plus from '~icons/ep/plus'
@@ -181,20 +181,18 @@ function resetQuery() {
 }
 
 function handleAdd() {
-  ElMessage.info('新增角色功能 — 开发中')
+  message.info('新增角色功能 — 开发中')
 }
 
 function handleEdit(row) {
-  ElMessage.info(`编辑角色: ${row.name} — 开发中`)
+  message.info(`编辑角色: ${row.name} — 开发中`)
 }
 
-function handleDelete(row) {
-  ElMessageBox.confirm(`确定要删除角色「${row.name}」吗？`, '提示', { type: 'warning' })
-    .then(() => {
-      ElMessage.success('删除成功')
-      handleQuery()
-    })
-    .catch(() => {})
+async function handleDelete(row) {
+  if (await confirm(`确定要删除角色「${row.name}」吗？`)) {
+    message.success('删除成功')
+    handleQuery()
+  }
 }
 
 function handlePermission(row) {
@@ -204,7 +202,7 @@ function handlePermission(row) {
 
 function handlePermSubmit() {
   const keys = treeRef.value.getCheckedKeys()
-  ElMessage.success(`已分配 ${keys.length} 个权限`)
+  message.success(`已分配 ${keys.length} 个权限`)
   permDialogVisible.value = false
 }
 </script>

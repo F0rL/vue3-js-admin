@@ -49,7 +49,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
 import { useUserStore } from '@/stores/modules/user'
-import { ElMessageBox } from 'element-plus'
+import { confirm } from '@/utils/feedback'
 import iconMap from '@/icons'
 
 const route = useRoute()
@@ -62,12 +62,9 @@ const breadcrumbs = computed(() =>
 )
 
 async function handleLogout() {
-  try {
-    await ElMessageBox.confirm('确定要退出登录吗？', '提示', { type: 'warning' })
+  if (await confirm('确定要退出登录吗？')) {
     await userStore.logout()
     router.push('/login')
-  } catch {
-    // cancelled
   }
 }
 </script>

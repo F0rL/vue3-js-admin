@@ -148,7 +148,7 @@
 
 <script setup>
 import { ref, reactive, computed, onMounted } from 'vue'
-import { ElMessage, ElMessageBox } from 'element-plus'
+import { message, confirm } from '@/utils/feedback'
 import Search from '~icons/ep/search'
 import Refresh from '~icons/ep/refresh'
 import Plus from '~icons/ep/plus'
@@ -275,28 +275,22 @@ function handleEdit(row) {
   dialogVisible.value = true
 }
 
-function handleDelete(row) {
-  ElMessageBox.confirm(`确定要删除用户「${row.username}」吗？`, '提示', { type: 'warning' })
-    .then(() => {
-      ElMessage.success('删除成功')
-      handleQuery()
-    })
-    .catch(() => {})
+async function handleDelete(row) {
+  if (await confirm(`确定要删除用户「${row.username}」吗？`)) {
+    message.success('删除成功')
+    handleQuery()
+  }
 }
 
-function handleBatchDelete() {
-  ElMessageBox.confirm(`确定要删除选中的 ${selectedIds.value.length} 个用户吗？`, '提示', {
-    type: 'warning',
-  })
-    .then(() => {
-      ElMessage.success('批量删除成功')
-      handleQuery()
-    })
-    .catch(() => {})
+async function handleBatchDelete() {
+  if (await confirm(`确定要删除选中的 ${selectedIds.value.length} 个用户吗？`)) {
+    message.success('批量删除成功')
+    handleQuery()
+  }
 }
 
 function handleStatusChange(row) {
-  ElMessage.success(`用户「${row.username}」已${row.status ? '启用' : '禁用'}`)
+  message.success(`用户「${row.username}」已${row.status ? '启用' : '禁用'}`)
 }
 
 function handleSubmit() {
@@ -304,7 +298,7 @@ function handleSubmit() {
     if (!valid) return
     submitLoading.value = true
     setTimeout(() => {
-      ElMessage.success(form.id ? '修改成功' : '新增成功')
+      message.success(form.id ? '修改成功' : '新增成功')
       submitLoading.value = false
       dialogVisible.value = false
       handleQuery()
