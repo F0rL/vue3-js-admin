@@ -1,0 +1,93 @@
+/* =============================================
+ * Unified Design Token System
+ * ---------------------------------------------
+ * Single source of truth for all theme values.
+ * - Overrides Element Plus CSS variables (--el-*)
+ * - Drives Tailwind v4 utilities via @theme in tailwind.css
+ * - Available as var(--xxx) in custom styles
+ *
+ * Change a value here → Element Plus components,
+ * Tailwind classes, and custom CSS all update together.
+ * ============================================= */
+
+:root {
+  /* ===== Primary (Brand) ===== */
+  --el-color-primary: #2563eb;
+  --el-color-primary-light-3: #6da0fb;
+  --el-color-primary-light-5: #9ab8fc;
+  --el-color-primary-light-7: #c5d5fd;
+  --el-color-primary-light-8: #d8e3fe;
+  --el-color-primary-light-9: #ecf2ff;
+  --el-color-primary-dark-2: #1e4fbc;
+
+  /* ===== Success ===== */
+  --el-color-success: #16a34a;
+  --el-color-success-light-3: #56b974;
+  --el-color-success-light-5: #8fd1a4;
+  --el-color-success-light-7: #c2e5cf;
+  --el-color-success-light-8: #d6ecdf;
+  --el-color-success-light-9: #ebf6ef;
+  --el-color-success-dark-2: #12823b;
+
+  /* ===== Warning ===== */
+  --el-color-warning: #d97706;
+  --el-color-warning-light-3: #e59e44;
+  --el-color-warning-light-5: #eebb74;
+  --el-color-warning-light-7: #f4d5a4;
+  --el-color-warning-light-8: #f7e2c0;
+  --el-color-warning-light-9: #fbf0db;
+  --el-color-warning-dark-2: #ae5f05;
+
+  /* ===== Danger / Error ===== */
+  --el-color-danger: #dc2626;
+  --el-color-error: #dc2626;
+  --el-color-danger-light-3: #e55c5c;
+  --el-color-danger-light-5: #ed8a8a;
+  --el-color-danger-light-7: #f4b4b4;
+  --el-color-danger-light-8: #f7cbcb;
+  --el-color-danger-light-9: #fbe5e5;
+  --el-color-danger-dark-2: #b01e1e;
+
+  /* ===== Info ===== */
+  --el-color-info: #6b7280;
+  --el-color-info-light-3: #959aa4;
+  --el-color-info-light-5: #b8bbc1;
+  --el-color-info-light-7: #d6d8db;
+  --el-color-info-light-8: #e3e4e6;
+  --el-color-info-light-9: #f1f2f3;
+  --el-color-info-dark-2: #565b66;
+
+  /* ===== Surface / Background ===== */
+  --el-bg-color: #ffffff;
+  --el-bg-color-overlay: #ffffff;
+  --el-bg-color-page: #f8fafc;
+  --el-fill-color: #f8fafc;
+  --el-fill-color-light: #f1f5f9;
+  --el-fill-color-lighter: #f8fafc;
+  --el-fill-color-blank: #ffffff;
+
+  /* ===== Text ===== */
+  --el-text-color-primary: #0f172a;
+  --el-text-color-regular: #334155;
+  --el-text-color-secondary: #64748b;
+  --el-text-color-placeholder: #94a3b8;
+  --el-text-color-disabled: #cbd5e1;
+
+  /* ===== Border ===== */
+  --el-border-color: #e2e8f0;
+  --el-border-color-light: #f1f5f9;
+  --el-border-color-lighter: #f8fafc;
+  --el-border-color-dark: #cbd5e1;
+  --el-border-color-darker: #94a3b8;
+
+  /* ===== Border Radius ===== */
+  --el-border-radius-base: 8px;
+  --el-border-radius-small: 6px;
+  --el-border-radius-round: 20px;
+  --el-border-radius-circle: 100%;
+
+  /* ===== Box Shadow ===== */
+  --el-box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+  --el-box-shadow-light: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --el-box-shadow-dark: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+}
