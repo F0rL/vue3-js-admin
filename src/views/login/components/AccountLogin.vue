@@ -30,11 +30,7 @@ const rules = reactive({
 
 async function handleSubmit() {
   if (!formRef.value) return
-  try {
-    await formRef.value.validate()
-  } catch {
-    return
-  }
+  await formRef.value.validate()
   submitting.value = true
   try {
     await userStore.login({ username: form.username, password: form.password })
@@ -86,7 +82,13 @@ async function handleSubmit() {
         </button>
       </div>
 
-      <el-button class="w-full" type="primary" size="large" :loading="submitting">
+      <el-button
+        class="w-full"
+        type="primary"
+        size="large"
+        :loading="submitting"
+        @click="handleSubmit"
+      >
         登&nbsp;&nbsp;录
       </el-button>
     </el-form>

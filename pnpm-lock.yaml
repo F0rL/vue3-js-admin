@@ -10,12 +10,18 @@ importers:
 
   .:
     dependencies:
+      '@alova/adapter-axios':
+        specifier: ^2.0.19
+        version: 2.0.19(alova@3.5.2)(axios@1.18.1)
       '@element-plus/icons-vue':
         specifier: ^2.3.1
         version: 2.3.2(vue@3.5.40)
       '@vueuse/core':
         specifier: ^14.3.0
         version: 14.3.0(vue@3.5.40)
+      alova:
+        specifier: ^3.5.2
+        version: 3.5.2
       axios:
         specifier: ^1.7.9
         version: 1.18.1
@@ -100,6 +106,15 @@ importers:
         version: 8.1.5(jiti@2.7.0)(sass-embedded@1.100.0(source-map-js@1.2.1))(sass@1.100.0)(yaml@2.9.0)
 
 packages:
+
+  '@alova/adapter-axios@2.0.19':
+    resolution: {integrity: sha512-n7RMMXjZf1dyiFYdgxJ5wolekmNizsDGnkkbJtjZ3ml4tYgl9zkMW57iHwLGi5jgvjqB8Cfkq/WpLWissvK97g==}
+    peerDependencies:
+      alova: ^3.0.20
+      axios: '>=0.4.0'
+
+  '@alova/shared@1.3.3':
+    resolution: {integrity: sha512-sIXqkoG6gs/KlnpTOLQAxui5jocnJclkPJw0Gk2gT7kHxFLyTFiaMkZFqw4zTZciDRscBA+VUkyGBrMFlu5NIg==}
 
   '@antfu/install-pkg@1.1.0':
     resolution: {integrity: sha512-MGQsmw10ZyI+EJo45CdSER4zEb+p31LpDAFp2Z3gkSd1yqVZGi0Ebx++YTEMonJy4oChEMLsxZ64j8FH6sSqtQ==}
@@ -658,6 +673,10 @@ packages:
 
   ajv@6.15.0:
     resolution: {integrity: sha512-fgFx7Hfoq60ytK2c7DhnF8jIvzYgOMxfugjLOSMHjLIPgenqa7S7oaagATUq99mV6IYvN2tRmC0wnTYX6iPbMw==}
+
+  alova@3.5.2:
+    resolution: {integrity: sha512-rrI4QLiHekeyf9AwBPhxCd5m46jJvn+jAc81PAytHROEEKeVeaN5vubaeA/WQVa4tHRjcs/FYluLL+SBRU/JhA==}
+    engines: {node: '>= 18.0.0'}
 
   ansi-styles@4.3.0:
     resolution: {integrity: sha512-zbB9rCJAT1rbjiVDb2hqKFHNYLxgtk8NURxZ3IZwD3F6NtxbXZQCnnSi1Lkx+IDohdPlFp222wVALIheZJQSEg==}
@@ -1418,6 +1437,9 @@ packages:
   quansync@0.2.11:
     resolution: {integrity: sha512-AifT7QEbW9Nri4tAwR5M/uzpBuqfZf+zwaEM/QkzEjj7NBuFD2rBuy0K3dE+8wltbezDV7JMA0WfnCPYRSYbXA==}
 
+  rate-limiter-flexible@5.0.5:
+    resolution: {integrity: sha512-+/dSQfo+3FYwYygUs/V2BBdwGa9nFtakDwKt4l0bnvNB53TNT++QSFewwHX9qXrZJuMe9j+TUaU21lm5ARgqdQ==}
+
   readdirp@4.1.2:
     resolution: {integrity: sha512-GDhwkLfywWL2s6vEjyhri+eXmfH6j1L7JE27WhqLeYzoh/A3DBaYGEj2H/HFZCn/kMfim73FXxEJTw06WtxQwg==}
     engines: {node: '>= 14.18.0'}
@@ -1854,6 +1876,14 @@ packages:
     resolution: {integrity: sha512-oEGMDB6pOP2S6OwRR4PdVv610zrjnA3Bh+JnSG12fYJlBKjtNAoEb5fSUoCOOINlH96I2fU38/A2UpRKs67xYQ==}
 
 snapshots:
+
+  '@alova/adapter-axios@2.0.19(alova@3.5.2)(axios@1.18.1)':
+    dependencies:
+      '@alova/shared': 1.3.3
+      alova: 3.5.2
+      axios: 1.18.1
+
+  '@alova/shared@1.3.3': {}
 
   '@antfu/install-pkg@1.1.0':
     dependencies:
@@ -2367,6 +2397,11 @@ snapshots:
       fast-json-stable-stringify: 2.1.0
       json-schema-traverse: 0.4.1
       uri-js: 4.4.1
+
+  alova@3.5.2:
+    dependencies:
+      '@alova/shared': 1.3.3
+      rate-limiter-flexible: 5.0.5
 
   ansi-styles@4.3.0:
     dependencies:
@@ -3045,6 +3080,8 @@ snapshots:
   punycode@2.3.1: {}
 
   quansync@0.2.11: {}
+
+  rate-limiter-flexible@5.0.5: {}
 
   readdirp@4.1.2: {}
 

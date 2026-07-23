@@ -1,6 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { login as loginApi, getUserInfo as getUserInfoApi } from '@/api/modules/user'
+import * as userApi from '@/api/user'
 
 export const useUserStore = defineStore(
   'user',
@@ -19,12 +19,12 @@ export const useUserStore = defineStore(
     const permissions = computed(() => userInfo.value.permissions)
 
     async function login(loginForm) {
-      const { data } = await loginApi(loginForm)
+      const { data } = await userApi.login(loginForm).send()
       token.value = data.token
     }
 
     async function fetchUserInfo() {
-      const { data } = await getUserInfoApi()
+      const { data } = await userApi.getUserInfo().send()
       userInfo.value = {
         id: data.id,
         name: data.name,

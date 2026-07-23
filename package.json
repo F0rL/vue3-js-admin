@@ -21,8 +21,10 @@
     }
   },
   "dependencies": {
+    "@alova/adapter-axios": "^2.0.19",
     "@element-plus/icons-vue": "^2.3.1",
     "@vueuse/core": "^14.3.0",
+    "alova": "^3.5.2",
     "axios": "^1.7.9",
     "dayjs": "^1.11.21",
     "echarts": "^6.1.0",

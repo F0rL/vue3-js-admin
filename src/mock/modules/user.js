@@ -1,6 +1,6 @@
 export function registerUserMock(mock) {
   // 登录 —— 校验用户名和密码
-  mock.onPost('/user/login').reply(config => {
+  mock.onPost('/api/user/login').reply(config => {
     const { username, password } = JSON.parse(config.data)
     if (username === 'admin' && password === 'admin123') {
       return [
@@ -22,7 +22,7 @@ export function registerUserMock(mock) {
   })
 
   // 获取当前用户信息
-  mock.onGet('/user/info').reply(200, {
+  mock.onGet('/api/user/info').reply(200, {
     code: 200,
     data: {
       id: 1,
@@ -35,7 +35,7 @@ export function registerUserMock(mock) {
   })
 
   // 退出登录
-  mock.onPost('/user/logout').reply(200, {
+  mock.onPost('/api/user/logout').reply(200, {
     code: 200,
     data: null,
     message: 'OK',
