@@ -1,5 +1,7 @@
-<script setup>
-defineEmits(['switchToAccount'])
+<script setup lang="ts">
+defineEmits<{
+  switchToAccount: []
+}>()
 </script>
 
 <template>

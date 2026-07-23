@@ -8,6 +8,8 @@
   </div>
 </template>
 
+<script setup lang="ts"></script>
+
 <style lang="scss" scoped>
 .error-page {
   display: flex;

@@ -1,6 +1,5 @@
 /**
  * Element Plus 反馈类组件统一封装
- * @module @/utils/feedback
  *
  * ------------------------------------------------------------------
  * 导入
@@ -109,33 +108,40 @@ import {
   ElMessageBox,
   ElLoading,
 } from 'element-plus'
+import type {
+  MessageOptions,
+  NotificationOptions,
+  ElMessageBoxOptions,
+  LoadingOptions,
+  LoadingInstance,
+} from 'element-plus'
 
 const DEFAULTS = {
   message: {
     duration: 3000,
     grouping: true,
     showClose: true,
-  },
+  } as Partial<MessageOptions>,
   notification: {
     duration: 4500,
-    position: 'top-right',
-  },
+    position: 'top-right' as const,
+  } as Partial<NotificationOptions>,
   messageBox: {
     confirmButtonText: '确定',
     cancelButtonText: '取消',
-    type: 'warning',
+    type: 'warning' as const,
     closeOnClickModal: false,
-  },
+  } as Partial<ElMessageBoxOptions>,
   loading: {
     fullscreen: true,
     lock: true,
     text: '加载中...',
-  },
+  } as Partial<LoadingOptions>,
 }
 
 // ============== Message ==============
-function makeMessage(type) {
-  return (message, options = {}) =>
+function makeMessage(type: MessageOptions['type']) {
+  return (message: string, options: Partial<MessageOptions> = {}) =>
     ElMessage({ ...DEFAULTS.message, message, type, ...options })
 }
 
@@ -144,9 +150,8 @@ export const message = {
   error: makeMessage('error'),
   warning: makeMessage('warning'),
   info: makeMessage('info'),
-  create: (options = {}) =>
+  create: (options: Partial<MessageOptions> = {}) =>
     ElMessage({ ...DEFAULTS.message, ...options }),
-  close: ElMessage.close,
   closeAll: ElMessage.closeAll,
 }
 
@@ -158,10 +163,14 @@ export const message = {
  * notify.success('同步完成', { duration: 5000 })     // 描述+选项
  * notify.success('同步完成', '操作成功', { ... })     // 全都指定
  */
-function makeNotify(type) {
-  return (message, titleOrOptions, options) => {
+function makeNotify(type: NotificationOptions['type']) {
+  return (
+    message: string,
+    titleOrOptions?: string | NotificationOptions,
+    options?: NotificationOptions,
+  ) => {
     let title = ''
-    let opts = {}
+    let opts: NotificationOptions = {} as NotificationOptions
     if (typeof titleOrOptions === 'string') {
       title = titleOrOptions
       if (options) opts = options
@@ -177,15 +186,14 @@ export const notify = {
   error: makeNotify('error'),
   warning: makeNotify('warning'),
   info: makeNotify('info'),
-  create: (options = {}) =>
+  create: (options: Partial<NotificationOptions> = {}) =>
     ElNotification({ ...DEFAULTS.notification, ...options }),
-  close: ElNotification.close,
   closeAll: ElNotification.closeAll,
 }
 
 // ============== MessageBox ==============
 
-export function confirm(message, title = '提示', options = {}) {
+export function confirm(message: string, title = '提示', options: Partial<ElMessageBoxOptions> = {}) {
   return ElMessageBox.confirm(message, title, {
     ...DEFAULTS.messageBox,
     ...options,
@@ -194,7 +202,7 @@ export function confirm(message, title = '提示', options = {}) {
     .catch(() => false)
 }
 
-export function alert(message, title = '提示', options = {}) {
+export function alert(message: string, title = '提示', options: Partial<ElMessageBoxOptions> = {}) {
   return ElMessageBox.alert(message, title, {
     ...DEFAULTS.messageBox,
     type: 'info',
@@ -202,7 +210,7 @@ export function alert(message, title = '提示', options = {}) {
   })
 }
 
-export function prompt(message, title = '提示', options = {}) {
+export function prompt(message: string, title = '提示', options: Partial<ElMessageBoxOptions> = {}) {
   return ElMessageBox.prompt(message, title, {
     ...DEFAULTS.messageBox,
     type: 'info',
@@ -212,7 +220,10 @@ export function prompt(message, title = '提示', options = {}) {
 
 // ============== Loading ==============
 
-export function showLoading(text, options = {}) {
+export function showLoading(
+  text?: string | LoadingOptions,
+  options: Partial<LoadingOptions> = {},
+): LoadingInstance {
   const textResolved =
     typeof text === 'string' ? text : DEFAULTS.loading.text
   const extraOptions = typeof text === 'string' ? options : (text || {})
@@ -223,7 +234,10 @@ export function showLoading(text, options = {}) {
   })
 }
 
-export async function withLoading(task, text) {
+export async function withLoading<T>(
+  task: (() => Promise<T>) | Promise<T>,
+  text?: string | LoadingOptions,
+): Promise<T> {
   const loading = showLoading(text)
   try {
     return await (typeof task === 'function' ? task() : task)
@@ -234,9 +248,11 @@ export async function withLoading(task, text) {
 
 // ============== 配置入口 ==============
 
-export function setupFeedback(config = {}) {
+export function setupFeedback(config: Partial<typeof DEFAULTS> = {}) {
   Object.entries(config).forEach(([key, value]) => {
-    if (DEFAULTS[key]) Object.assign(DEFAULTS[key], value)
+    if (DEFAULTS[key as keyof typeof DEFAULTS]) {
+      Object.assign(DEFAULTS[key as keyof typeof DEFAULTS], value)
+    }
   })
 }
 

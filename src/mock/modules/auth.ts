@@ -1,12 +1,15 @@
-export function registerUserMock(mock) {
-  // 登录 —— 校验用户名和密码
-  mock.onPost('/api/user/login').reply(config => {
+import type { AxiosRequestConfig } from 'axios'
+import type MockAdapter from 'axios-mock-adapter'
+
+export function registerAuthMock(mock: MockAdapter) {
+  // 登录
+  mock.onPost('/api/Auth/GetTokenPC').reply((config: AxiosRequestConfig) => {
     const { username, password } = JSON.parse(config.data)
     if (username === 'admin' && password === 'admin123') {
       return [
         200,
         {
-          code: 200,
+          code: 0,
           data: { token: `mock-token-${Date.now()}` },
           message: 'OK',
         },
@@ -22,8 +25,8 @@ export function registerUserMock(mock) {
   })
 
   // 获取当前用户信息
-  mock.onGet('/api/user/info').reply(200, {
-    code: 200,
+  mock.onGet('/api/Auth/GetUserInfo').reply(200, {
+    code: 0,
     data: {
       id: 1,
       name: '管理员',
@@ -35,9 +38,10 @@ export function registerUserMock(mock) {
   })
 
   // 退出登录
-  mock.onPost('/api/user/logout').reply(200, {
-    code: 200,
+  mock.onPost('/api/Auth/logout').reply(200, {
+    code: 0,
     data: null,
     message: 'OK',
   })
+
 }

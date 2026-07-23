@@ -1,3 +1,4 @@
+import type { Component } from 'vue'
 import RiHome4Line from '~icons/ri/home-4-line'
 import RiSettings3Line from '~icons/ri/settings-3-line'
 import RiUser3Line from '~icons/ri/user-3-line'
@@ -34,7 +35,7 @@ import RiShoppingCartLine from '~icons/ri/shopping-cart-line'
 import RiMoneyDollarCircleLine from '~icons/ri/money-dollar-circle-line'
 import RiQrCodeLine from '~icons/ri/qr-code-line'
 
-const riMap = {
+const riMap: Record<string, Component> = {
   'ri:home-4-line': RiHome4Line,
   'ri:settings-3-line': RiSettings3Line,
   'ri:user-3-line': RiUser3Line,

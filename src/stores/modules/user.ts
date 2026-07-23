@@ -1,12 +1,13 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import * as userApi from '@/api/user'
+import * as authApi from '@/api/auth'
+import type { LoginPayload, UserInfo } from '@/api/auth'
 
 export const useUserStore = defineStore(
   'user',
   () => {
     const token = ref('')
-    const userInfo = ref({
+    const userInfo = ref<UserInfo>({
       id: '',
       name: '',
       avatar: '',
@@ -18,21 +19,21 @@ export const useUserStore = defineStore(
     const roles = computed(() => userInfo.value.roles)
     const permissions = computed(() => userInfo.value.permissions)
 
-    async function login(loginForm) {
-      const { data } = await userApi.login(loginForm).send()
-      token.value = data.token
+    async function login(loginForm: LoginPayload) {
+      const { msg } = await authApi.getTokenPC(loginForm).send()
+      token.value = msg
     }
 
     async function fetchUserInfo() {
-      const { data } = await userApi.getUserInfo().send()
+      const { msg } = await authApi.getUserInfo().send()
       userInfo.value = {
-        id: data.id,
-        name: data.name,
-        avatar: data.avatar,
-        roles: data.roles,
-        permissions: data.permissions,
+        id: msg.id,
+        name: msg.name,
+        avatar: msg.avatar,
+        roles: msg.roles,
+        permissions: msg.permissions,
       }
-      return data
+      return msg
     }
 
     async function logout() {

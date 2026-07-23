@@ -1,6 +1,7 @@
+import type { Ref } from 'vue'
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 
-export function useResize() {
+export function useResize(): { width: Ref<number>; height: Ref<number> } {
   const width = ref(window.innerWidth)
   const height = ref(window.innerHeight)
 

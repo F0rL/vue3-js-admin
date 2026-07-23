@@ -1,3 +1,4 @@
+import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import NProgress from 'nprogress'
 import { useUserStore } from '@/stores/modules/user'
@@ -5,7 +6,16 @@ import { config } from '@/config'
 
 import DefaultLayout from '@/layouts/default/index.vue'
 
-export const constantRoutes = [
+declare module 'vue-router' {
+  interface RouteMeta {
+    title?: string
+    icon?: string
+    hidden?: boolean
+    affix?: boolean
+  }
+}
+
+export const constantRoutes: RouteRecordRaw[] = [
   {
     path: '/login',
     name: 'Login',
@@ -20,7 +30,7 @@ export const constantRoutes = [
   },
 ]
 
-export const asyncRoutes = [
+export const asyncRoutes: RouteRecordRaw[] = [
   {
     path: '/',
     component: DefaultLayout,
@@ -31,46 +41,6 @@ export const asyncRoutes = [
         name: 'Dashboard',
         component: () => import('@/views/dashboard/index.vue'),
         meta: { title: '首页', icon: 'HomeFilled', affix: true },
-      },
-    ],
-  },
-  {
-    path: '/system',
-    component: DefaultLayout,
-    redirect: '/system/user',
-    meta: { title: '系统管理', icon: 'Setting' },
-    children: [
-      {
-        path: 'user',
-        name: 'User',
-        component: () => import('@/views/system/user.vue'),
-        meta: { title: '用户管理', icon: 'User' },
-      },
-      {
-        path: 'role',
-        name: 'Role',
-        component: () => import('@/views/system/role.vue'),
-        meta: { title: '角色管理', icon: 'Avatar' },
-      },
-    ],
-  },
-  {
-    path: '/example',
-    component: DefaultLayout,
-    redirect: '/example/table',
-    meta: { title: '示例页面', icon: 'Document' },
-    children: [
-      {
-        path: 'table',
-        name: 'Table',
-        component: () => import('@/views/example/table.vue'),
-        meta: { title: '综合表格', icon: 'Grid' },
-      },
-      {
-        path: 'form',
-        name: 'Form',
-        component: () => import('@/views/example/form.vue'),
-        meta: { title: '综合表单', icon: 'Edit' },
       },
     ],
   },
@@ -85,7 +55,7 @@ const router = createRouter({
 
 const whiteList = ['/login']
 
-router.beforeEach(async (to, from) => {
+router.beforeEach(async to => {
   NProgress.start()
   // document.title = to.meta.title ? `${to.meta.title} - Admin` : 'Admin Template'
   const userStore = useUserStore()

@@ -1,3 +1,4 @@
+import type { Component } from 'vue'
 import HomeFilled from '~icons/ep/home-filled'
 import Setting from '~icons/ep/setting'
 import User from '~icons/ep/user'
@@ -44,7 +45,7 @@ import TrendCharts from '~icons/ep/trend-charts'
 import Coin from '~icons/ep/coin'
 import ShoppingCartFull from '~icons/ep/shopping-cart-full'
 
-const epMap = {
+const epMap: Record<string, Component> = {
   HomeFilled,
   Setting,
   User,

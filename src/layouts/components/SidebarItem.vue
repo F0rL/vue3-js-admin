@@ -28,15 +28,25 @@
   </template>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import iconMap from '@/icons'
 import SidebarItem from './SidebarItem.vue'
 
-const props = defineProps({
-  item: { type: Object, required: true },
-  basePath: { type: String, default: '' },
-})
+interface MenuRoute {
+  path: string
+  meta?: {
+    hidden?: boolean
+    title?: string
+    icon?: string
+  }
+  children?: MenuRoute[]
+}
+
+const props = defineProps<{
+  item: MenuRoute
+  basePath: string
+}>()
 
 const fullPath = computed(() => {
   if (props.item.path.startsWith('/')) return props.item.path

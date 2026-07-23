@@ -14,43 +14,40 @@ export default defineConfig(({ mode }) => {
   return {
     base: env.VITE_APP_BASE_URL || '/',
     define: {
-      __USE_MOCK__: JSON.stringify(true)   // 后端就绪后改为 false
+      __USE_MOCK__: JSON.stringify(true), // 后端就绪后改为 false
     },
     plugins: [
       tailwindcss(),
       vue(),
       AutoImport({
-        resolvers: [
-          ElementPlusResolver(),
-          IconsResolver({ prefix: 'Icon' }),
-        ],
+        resolvers: [ElementPlusResolver(), IconsResolver({ prefix: 'Icon' })],
         imports: ['vue', 'vue-router', 'pinia'],
-        dts: 'src/auto-imports.d.ts'
+        dts: 'src/auto-imports.d.ts',
       }),
       Components({
         resolvers: [
           ElementPlusResolver({ importStyle: 'sass' }),
           IconsResolver({ prefix: 'Icon', enabledCollections: ['ri', 'ep'] }),
         ],
-        dts: 'src/components.d.ts'
+        dts: 'src/components.d.ts',
       }),
       Icons({
         compiler: 'vue3',
         scale: 1,
         autoInstall: false,
-      })
+      }),
     ],
     resolve: {
       alias: {
-        '@': resolve(__dirname, 'src')
-      }
+        '@': resolve(__dirname, 'src'),
+      },
     },
     css: {
       preprocessorOptions: {
         scss: {
-          api: 'modern-compiler'
-        }
-      }
+          api: 'modern-compiler',
+        } as Record<string, unknown>,
+      },
     },
     server: {
       port: 4000,
@@ -59,9 +56,9 @@ export default defineConfig(({ mode }) => {
         '/api': {
           target: 'http://localhost:8080',
           changeOrigin: true,
-          rewrite: path => path.replace(/^\/api/, '')
-        }
-      }
-    }
+          rewrite: (path: string) => path.replace(/^\/api/, ''),
+        },
+      },
+    },
   }
 })

@@ -34,7 +34,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
@@ -47,7 +47,7 @@ const appStore = useAppStore()
 
 const isCollapse = computed(() => appStore.sidebarIconOnly)
 
-const activeMenu = computed(() => route.meta?.activeMenu || route.path)
+const activeMenu = computed(() => (route.meta?.activeMenu as string) || route.path)
 
 const menuRoutes = computed(() => asyncRoutes.filter(r => !r.meta?.hidden))
 </script>

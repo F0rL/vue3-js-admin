@@ -1,5 +1,6 @@
-<script setup>
+<script setup lang="ts">
 import { reactive, ref, useTemplateRef } from 'vue'
+import type { FormInstance } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
 import { message } from '@/utils/feedback'
 import { useUserStore } from '@/stores/modules/user'
@@ -8,11 +9,16 @@ const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
 
-const formRef = useTemplateRef('formRef')
+const formRef = useTemplateRef<FormInstance>('formRef')
 const submitting = ref(false)
 const rememberMe = ref(true)
 
-const form = reactive({
+interface LoginForm {
+  username: string
+  password: string
+}
+
+const form = reactive<LoginForm>({
   username: 'admin',
   password: 'admin123',
 })
@@ -40,7 +46,7 @@ async function handleSubmit() {
       typeof route.query.redirect === 'string' && route.query.redirect ? route.query.redirect : '/'
     await router.push(redirectPath)
   } catch (error) {
-    message.error(error.message || '登录失败')
+    message.error((error as Error).message || '登录失败')
   } finally {
     submitting.value = false
   }

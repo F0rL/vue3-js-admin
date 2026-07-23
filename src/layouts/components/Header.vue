@@ -44,7 +44,7 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
@@ -64,7 +64,7 @@ const breadcrumbs = computed(() =>
 async function handleLogout() {
   if (await confirm('确定要退出登录吗？')) {
     await userStore.logout()
-    router.push('/login')
+    await router.push('/login')
   }
 }
 </script>

@@ -5,7 +5,7 @@ import { storageKey } from '@/utils/storage'
 const pinia = createPinia()
 pinia.use(
   createPersistedState({
-    key: id => storageKey(id),
+    key: (id: string) => storageKey(id),
   }),
 )
 

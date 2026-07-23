@@ -1,5 +1,7 @@
-<script setup>
+<script setup lang="ts">
 import { computed, reactive, shallowRef, ref } from 'vue'
+import type { Ref, ShallowRef } from 'vue'
+import type { EChartsOption } from 'echarts'
 import { useECharts } from '@/hooks/useECharts'
 import iconMap from '@/icons'
 
@@ -15,13 +17,13 @@ const metrics = reactive({
   activeUsers: 12840,
 })
 
-const chartDailyRef = ref(null)
-const chartChannelRevenueRef = ref(null)
-const chartOrderStatusRef = ref(null)
-const chartOrderTypeRef = ref(null)
+const chartDailyRef: Ref<HTMLDivElement | null> = ref(null)
+const chartChannelRevenueRef: Ref<HTMLDivElement | null> = ref(null)
+const chartOrderStatusRef: Ref<HTMLDivElement | null> = ref(null)
+const chartOrderTypeRef: Ref<HTMLDivElement | null> = ref(null)
 
 // 近7日访问趋势（PV/UV）
-const dailyTrendOption = shallowRef({
+const dailyTrendOption: ShallowRef<EChartsOption> = shallowRef({
   tooltip: { trigger: 'axis' },
   legend: {
     data: ['访问量(PV)', '访客数(UV)'],
@@ -58,7 +60,7 @@ const dailyTrendOption = shallowRef({
 })
 
 // 本月各渠道营收
-const channelRevenueOption = shallowRef({
+const channelRevenueOption: ShallowRef<EChartsOption> = shallowRef({
   tooltip: { trigger: 'axis' },
   legend: { data: ['线上', '线下'], bottom: 4, icon: 'circle', itemWidth: 8 },
   grid: { left: 44, right: 16, bottom: 52, top: 8 },
@@ -84,7 +86,7 @@ const channelRevenueOption = shallowRef({
 })
 
 // 近7日待处理工单状态
-const orderStatusOption = shallowRef({
+const orderStatusOption: ShallowRef<EChartsOption> = shallowRef({
   tooltip: { trigger: 'axis' },
   legend: {
     data: ['待处理', '处理中', '已完成'],
@@ -124,7 +126,7 @@ const orderStatusOption = shallowRef({
 })
 
 // 本月订单类型分布
-const orderTypeOption = shallowRef({
+const orderTypeOption: ShallowRef<EChartsOption> = shallowRef({
   tooltip: { trigger: 'item', formatter: '{b}: {c} 单 ({d}%)' },
   series: [
     {
@@ -277,13 +279,13 @@ const cards = computed(() => [
         <h3 class="mb-4 text-base font-medium text-gray-700">
           近 7 日访问趋势
         </h3>
-        <div ref="chartDaily" class="h-72 w-full" />
+        <div ref="chartDailyRef" class="h-72 w-full" />
       </div>
 
       <!-- 渠道营收 -->
       <div class="rounded-lg bg-white p-5 shadow-sm">
         <h3 class="mb-4 text-base font-medium text-gray-700">本月各渠道营收</h3>
-        <div ref="chartChannelRevenue" class="h-72 w-full" />
+        <div ref="chartChannelRevenueRef" class="h-72 w-full" />
       </div>
 
       <!-- 工单状态 -->
@@ -291,7 +293,7 @@ const cards = computed(() => [
         <h3 class="mb-4 text-base font-medium text-gray-700">
           近 7 日工单状态
         </h3>
-        <div ref="chartOrderStatus" class="h-72 w-full" />
+        <div ref="chartOrderStatusRef" class="h-72 w-full" />
       </div>
 
       <!-- 订单类型分布 -->
@@ -299,7 +301,7 @@ const cards = computed(() => [
         <h3 class="mb-4 text-base font-medium text-gray-700">
           本月订单类型分布
         </h3>
-        <div ref="chartOrderType" class="h-72 w-full" />
+        <div ref="chartOrderTypeRef" class="h-72 w-full" />
       </div>
     </div>
   </div>

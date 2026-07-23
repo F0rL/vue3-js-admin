@@ -1,8 +1,0 @@
-import { axiosInstance } from '@/utils/http'
-import MockAdapter from 'axios-mock-adapter'
-import { registerUserMock } from './modules/user'
-
-const mock = new MockAdapter(axiosInstance, { delayResponse: 300 })
-
-// 按业务模块注册 mock 路由
-registerUserMock(mock)

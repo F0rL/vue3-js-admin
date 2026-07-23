@@ -3,7 +3,7 @@ import pinia from '@/stores'
 import router from './router'
 import App from './App.vue'
 
-// 启用 mock 时动态加载；__USE_MOCK__ 由 vite.config.js define 在构建期
+// 启用 mock 时动态加载；__USE_MOCK__ 由 vite.config.ts define 在构建期
 // 替换为 true/false 字面量，false 时该分支被 Rollup 彻底 tree-shake
 if (__USE_MOCK__) {
   import('@/mock')

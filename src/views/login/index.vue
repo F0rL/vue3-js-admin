@@ -1,11 +1,11 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
 import LoginLayout from './components/LoginLayout.vue'
 import AccountLogin from './components/AccountLogin.vue'
 import QrcodeLogin from './components/QrcodeLogin.vue'
 import { config } from '@/config'
 
-const activeTab = ref('account')
+const activeTab = ref<'account' | 'qrcode'>('account')
 </script>
 
 <template>

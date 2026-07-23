@@ -15,7 +15,7 @@ export const useAppStore = defineStore(
       sidebarWithoutAnimation.value = false
     }
 
-    function closeSidebar(withoutAnimation) {
+    function closeSidebar(withoutAnimation: boolean) {
       sidebarOpened.value = false
       sidebarWithoutAnimation.value = withoutAnimation
     }
@@ -24,15 +24,15 @@ export const useAppStore = defineStore(
       sidebarIconOnly.value = !sidebarIconOnly.value
     }
 
-    function setSidebarIconOnly(iconOnly) {
+    function setSidebarIconOnly(iconOnly: boolean) {
       sidebarIconOnly.value = iconOnly
     }
 
-    function toggleDevice(val) {
+    function toggleDevice(val: string) {
       device.value = val
     }
 
-    function setSize(val) {
+    function setSize(val: string) {
       size.value = val
     }
 

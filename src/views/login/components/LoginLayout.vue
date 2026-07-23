@@ -1,10 +1,14 @@
-<script setup>
+<script setup lang="ts">
 import { useVModel } from '@vueuse/core'
 
-const props = defineProps({
-  activeTab: { type: String, required: true },
-})
-const emit = defineEmits(['update:activeTab'])
+interface Props {
+  activeTab: 'account' | 'qrcode'
+}
+
+const props = defineProps<Props>()
+const emit = defineEmits<{
+  'update:activeTab': [value: 'account' | 'qrcode']
+}>()
 
 const activeTab = useVModel(props, 'activeTab', emit)
 </script>

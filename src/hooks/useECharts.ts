@@ -1,3 +1,6 @@
+import type { Ref } from 'vue'
+import type { EChartsOption } from 'echarts'
+import type { EChartsType } from 'echarts/core'
 import { init, use } from 'echarts/core'
 import { BarChart, LineChart, PieChart } from 'echarts/charts'
 import {
@@ -21,9 +24,12 @@ use([
   TooltipComponent,
 ])
 
-export function useECharts(domRef, options) {
+export function useECharts(
+  domRef: Ref<HTMLDivElement | null>,
+  options: EChartsOption | Ref<EChartsOption>,
+): { loading: Ref<boolean> } {
   const loading = ref(true)
-  let chartInstance = null
+  let chartInstance: EChartsType | null = null
 
   function disposeChart() {
     chartInstance?.dispose()
