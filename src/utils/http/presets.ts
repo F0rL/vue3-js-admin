@@ -4,7 +4,6 @@ import { isSuccess, handleBusinessError, handleNetworkError } from './error'
 import type { AlovaGenerics, Method, RespondedHandlerRecord, GlobalCacheConfig } from 'alova'
 import type { AxiosResponse, AxiosResponseHeaders } from 'axios'
 import type { AlovaAxiosRequestConfig } from '@alova/adapter-axios'
-import type { ApiResponse } from '@/types/api'
 
 type HttpAlovaGenerics = AlovaGenerics<
   any,

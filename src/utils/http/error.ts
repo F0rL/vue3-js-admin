@@ -1,5 +1,4 @@
 import { message } from '@/utils/feedback'
-import type { ApiResponse } from '@/types/api'
 import type { AxiosError } from 'axios'
 
 /* ============ 业务错误码常量 ============ */
