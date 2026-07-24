@@ -55,7 +55,7 @@ const activeTab = ref<'account' | 'qrcode'>('account')
 
     <!-- Right: Login form panel -->
     <section
-      class="relative z-10 flex items-center justify-center py-8 lg:px-16 lg:w-160 lg:bg-white lg:shadow"
+      class="relative z-10 flex items-center justify-center py-8 lg: lg:w-160 lg:bg-white lg:shadow"
     >
       <div class="w-full max-w-120">
         <LoginLayout v-model:active-tab="activeTab" />

@@ -13,8 +13,10 @@ const userStore = useUserStore()
 
 const formRef = useTemplateRef<FormInstance>('formRef')
 const submitting = ref(false)
-const rememberMe = ref(true)
+const rememberMe = ref(false)
 const captchaImage = ref('')
+
+const otpValidator = (value: string) => /^[0-9a-zA-Z]$/.test(value)
 
 interface LoginForm {
   username: string
@@ -105,18 +107,16 @@ async function handleSubmit() {
       </el-form-item>
       <el-form-item prop="captchaCode">
         <div class="flex gap-3">
-          <el-input
+          <el-input-otp
             v-model="form.captchaCode"
+            :length="4"
             :disabled="submitting"
-            placeholder="请输入验证码"
-            @keyup.enter="handleSubmit"
-          >
-            <template #prefix>
-              <el-icon><IconRiShieldUserLine /></el-icon>
-            </template>
-          </el-input>
+            :validator="otpValidator"
+            inputmode="numeric"
+            @finish="handleSubmit"
+          />
           <div
-            class="h-10 w-30 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-slate-200"
+            class="h-10 w-28 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-slate-200"
             @click="fetchCaptcha"
           >
             <img
@@ -135,18 +135,18 @@ async function handleSubmit() {
         </div>
       </el-form-item>
 
-      <div class="-mt-2 mb-6 flex items-center justify-between">
+      <div class="flex items-center justify-between">
         <el-checkbox v-model="rememberMe">记住我</el-checkbox>
-        <button
+        <!-- <button
           type="button"
           class="cursor-pointer border-0 bg-transparent text-sm font-medium text-blue-600 transition hover:text-blue-700"
         >
           忘记密码？
-        </button>
+        </button> -->
       </div>
 
       <el-button
-        class="w-full"
+        class="w-full mt-8"
         type="primary"
         size="large"
         :loading="submitting"
