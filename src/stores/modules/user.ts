@@ -2,6 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import * as authApi from '@/api/auth'
 import type { LoginPayload, UserInfo } from '@/api/auth'
+import { encryptPwdRsa } from '@/utils/encrypt'
 
 export const useUserStore = defineStore(
   'user',
@@ -20,7 +21,8 @@ export const useUserStore = defineStore(
     const permissions = computed(() => userInfo.value.permissions)
 
     async function login(loginForm: LoginPayload) {
-      const { msg } = await authApi.getTokenPC(loginForm).send()
+      const password = encryptPwdRsa(loginForm.password)
+      const { msg } = await authApi.getTokenPC({ ...loginForm, password }).send()
       token.value = msg
     }
 

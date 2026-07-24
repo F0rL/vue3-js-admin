@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { reactive, ref, useTemplateRef } from 'vue'
+import { reactive, ref, useTemplateRef, onMounted } from 'vue'
 import type { FormInstance } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
 import { message } from '@/utils/feedback'
 import { useUserStore } from '@/stores/modules/user'
+import { md5Hash } from '@/utils/encrypt'
+import * as authApi from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
@@ -12,18 +14,23 @@ const userStore = useUserStore()
 const formRef = useTemplateRef<FormInstance>('formRef')
 const submitting = ref(false)
 const rememberMe = ref(true)
+const captchaImage = ref('')
 
 interface LoginForm {
   username: string
   password: string
+  captchaCode: string
+  captchaKey: string
 }
 
 const form = reactive<LoginForm>({
   username: 'admin',
-  password: 'admin123',
+  password: 'admin123321',
+  captchaCode: '',
+  captchaKey: '',
 })
 
-const rules = reactive({
+const rules = ref({
   username: [
     { required: true, message: '请输入账号', trigger: 'blur' },
     { min: 3, message: '账号长度不能少于 3 位', trigger: 'blur' },
@@ -32,6 +39,17 @@ const rules = reactive({
     { required: true, message: '请输入密码', trigger: 'blur' },
     { min: 6, message: '密码长度不能少于 6 位', trigger: 'blur' },
   ],
+  captchaCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
+})
+
+async function fetchCaptcha() {
+  const { msg } = await authApi.getLoginVerCode().send()
+  captchaImage.value = 'data:image/png;base64,' + msg.base64
+  form.captchaKey = msg.key
+}
+
+onMounted(() => {
+  fetchCaptcha().catch(() => {})
 })
 
 async function handleSubmit() {
@@ -39,14 +57,22 @@ async function handleSubmit() {
   await formRef.value.validate()
   submitting.value = true
   try {
-    await userStore.login({ username: form.username, password: form.password })
+    const verifyCode = md5Hash(form.captchaCode.toUpperCase())
+    await userStore.login({
+      username: form.username,
+      password: form.password,
+      verifyCode,
+      verifyKey: form.captchaKey,
+    })
     await userStore.fetchUserInfo()
     message.success('登录成功')
     const redirectPath =
       typeof route.query.redirect === 'string' && route.query.redirect ? route.query.redirect : '/'
     await router.push(redirectPath)
   } catch (error) {
-    message.error((error as Error).message || '登录失败')
+    console.error(error)
+    fetchCaptcha()
+    form.captchaCode = ''
   } finally {
     submitting.value = false
   }
@@ -76,6 +102,37 @@ async function handleSubmit() {
             <el-icon><IconEpLock /></el-icon>
           </template>
         </el-input>
+      </el-form-item>
+      <el-form-item prop="captchaCode">
+        <div class="flex gap-3">
+          <el-input
+            v-model="form.captchaCode"
+            :disabled="submitting"
+            placeholder="请输入验证码"
+            @keyup.enter="handleSubmit"
+          >
+            <template #prefix>
+              <el-icon><IconRiShieldUserLine /></el-icon>
+            </template>
+          </el-input>
+          <div
+            class="h-10 w-30 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-slate-200"
+            @click="fetchCaptcha"
+          >
+            <img
+              v-if="captchaImage"
+              :src="captchaImage"
+              alt="验证码"
+              class="h-full w-full object-cover"
+            />
+            <div
+              v-else
+              class="flex h-full w-full items-center justify-center bg-slate-100 text-xs text-slate-400"
+            >
+              加载中
+            </div>
+          </div>
+        </div>
       </el-form-item>
 
       <div class="-mt-2 mb-6 flex items-center justify-between">

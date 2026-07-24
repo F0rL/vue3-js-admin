@@ -3,8 +3,9 @@ import type MockAdapter from 'axios-mock-adapter'
 export function registerSysMenuMock(mock: MockAdapter) {
   // 获取用户权限菜单
   mock.onPost('/api/SysMenu/GetUserRightMenu').reply(200, {
+    flag: true,
     code: 0,
-    data: [
+    msg: [
       {
         path: '/dashboard',
         name: 'Dashboard',
@@ -29,6 +30,7 @@ export function registerSysMenuMock(mock: MockAdapter) {
         ],
       },
     ],
-    message: 'OK',
+    total: 0,
+    time: new Date().toISOString(),
   })
 }

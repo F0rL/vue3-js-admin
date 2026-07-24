@@ -7,6 +7,10 @@ export interface LoginPayload {
   username: string
   /** 密码 */
   password: string
+  /** 验证码（MD5 大写） */
+  verifyCode: string
+  /** 验证码 key */
+  verifyKey: string
 }
 
 /** 登录用户信息 */
@@ -23,15 +27,13 @@ export interface UserInfo {
   permissions: string[]
 }
 
-/**
- * PC 端账号密码登录，获取访问令牌
- *
- * 用法（配合 alova 的 Method 链式调用）：
- * ```js
- * const { msg } = await getTokenPC({ username, password }).send()
- * userStore.token = msg
- * ```
- */
+export function getLoginVerCode(): ApiMethod<{
+  base64: string
+  key: string
+}> {
+  return http.Get('/Auth/GetLoginVerCode')
+}
+
 export function getTokenPC(data: LoginPayload): ApiMethod<string> {
   return http.Post('/Auth/GetTokenPC', data)
 }

@@ -10,7 +10,7 @@ const activeTab = ref<'account' | 'qrcode'>('account')
 
 <template>
   <div
-    class="relative grid min-h-dvh overflow-hidden bg-linear-to-br from-blue-50 via-white to-slate-50 lg:grid-cols-[1fr_480px]"
+    class="relative h-full overflow-hidden bg-linear-to-br from-blue-50 via-white to-slate-50 lg:flex"
   >
     <!-- Decorative elements -->
     <div
@@ -24,13 +24,15 @@ const activeTab = ref<'account' | 'qrcode'>('account')
     />
 
     <!-- Left: Branding panel -->
-    <section class="relative z-10 hidden h-full flex-col justify-between px-16 py-10 lg:flex">
+    <section
+      class="relative z-10 hidden h-full flex-col justify-between px-16 py-10 lg:flex lg:flex-1"
+    >
       <div>
         <div class="flex items-center gap-3">
           <div
-            class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-lg font-bold text-white shadow-lg shadow-blue-600/20"
+            class="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-600 text-lg font-bold text-white shadow-lg shadow-blue-600/20"
           >
-            大
+            {{ config.APP_TITLE.slice(0, 1) }}
           </div>
           <span class="text-lg font-semibold text-slate-900">{{ config.APP_TITLE }}管理后台</span>
         </div>
@@ -53,15 +55,15 @@ const activeTab = ref<'account' | 'qrcode'>('account')
 
     <!-- Right: Login form panel -->
     <section
-      class="relative z-10 flex min-h-dvh items-center justify-center px-5 py-8 lg:min-h-full lg:bg-white lg:shadow-[-8px_0_40px_rgba(0,0,0,0.04)]"
+      class="relative z-10 flex items-center justify-center py-8 lg:px-16 lg:w-160 lg:bg-white lg:shadow"
     >
-      <div class="w-full max-w-100">
+      <div class="w-full max-w-120">
         <LoginLayout v-model:active-tab="activeTab" />
-        <div class="panel-container">
-          <div v-show="activeTab === 'account'" class="panel">
+        <div class="relative min-h-100">
+          <div v-show="activeTab === 'account'">
             <AccountLogin @switch-to-qrcode="activeTab = 'qrcode'" />
           </div>
-          <div v-show="activeTab === 'qrcode'" class="panel">
+          <div v-show="activeTab === 'qrcode'">
             <QrcodeLogin @switch-to-account="activeTab = 'account'" />
           </div>
         </div>
@@ -70,14 +72,4 @@ const activeTab = ref<'account' | 'qrcode'>('account')
   </div>
 </template>
 
-<style scoped>
-.panel-container {
-  position: relative;
-  min-height: 416px;
-}
-
-.panel {
-  position: absolute;
-  inset: 0;
-}
-</style>
+<style scoped></style>

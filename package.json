@@ -30,6 +30,7 @@
     "dayjs": "^1.11.21",
     "echarts": "^6.1.0",
     "element-plus": "^2.9.7",
+    "node-forge": "^1.4.0",
     "nprogress": "^0.2.0",
     "pinia": "^3.0.4",
     "pinia-plugin-persistedstate": "^4.7.1",

@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
       vue(),
       AutoImport({
         resolvers: [ElementPlusResolver(), IconsResolver({ prefix: 'Icon' })],
-        imports: ['vue', 'vue-router', 'pinia'],
+        // imports: ['vue', 'vue-router', 'pinia'],
         dts: 'src/auto-imports.d.ts',
       }),
       Components({

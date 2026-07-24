@@ -35,11 +35,15 @@ pnpm lint          # ESLint 检查 .vue/.js 文件
 
 ## 架构
 
-### 自动导入（无需手动导入）
+### 自动导入
 
-`unplugin-auto-import` 会在 `.vue` 文件中全局注入 `vue`、`vue-router`、`pinia` 以及 Element Plus API。无需编写 `import { ref, computed } from 'vue'` 或 `import { ElMessage } from 'element-plus'`。
+Element Plus API（如 `ElMessage`、`ElLoading`）通过 `unplugin-auto-import` 自动注入，无需手动导入。
 
 Element Plus **组件**通过 `unplugin-vue-components` 自动导入——直接使用 `<el-button>`、`<el-table>` 等，无需手动注册。
+
+图标组件通过 `unplugin-icons` + `unplugin-vue-components` 解析，前缀 `Icon`（如 `<IconEpUser />`、`<IconRiShieldUserLine />`），无需手动注册。
+
+注意：`vue`、`vue-router`、`pinia` 的自动导入已禁用，需要显式编写 `import { ref, computed } from 'vue'` 等语句。
 
 ### Store 使用 Setup 语法（非 Options API）
 
@@ -114,6 +118,25 @@ Token 和用户状态通过 `pinia-plugin-persistedstate` 持久化，使用来�
 ### sass-embedded
 
 使用 `api: 'modern-compiler'`——SCSS 文件必须使用 `@use`/`@forward` 语法，不能使用 `@import`。
+
+### 反馈类组件统一封装
+
+`src/utils/feedback.ts` 对 Element Plus 的 ElMessage、ElNotification、ElMessageBox、ElLoading 做了统一封装，设置了一组合适的默认值。使用时导入 `message`、`notify`、`confirm`、`alert`、`prompt`、`showLoading`、`withLoading` 等即可。
+
+```js
+import { message, notify, confirm, showLoading, withLoading } from '@/utils/feedback'
+
+message.success('保存成功')
+message.error('操作失败')
+notify.success('数据已同步', '操作成功')
+await confirm('确认删除？', '删除', { type: 'error' })
+await alert('操作成功', '成功', { type: 'success' })
+const result = await prompt('请输入名称', '新建')
+const loading = showLoading('保存中...')
+withLoading(requestPromise, '保存中...')
+```
+
+如需全局调整默认值，在 `main.js` 中调用 `setupFeedback({ ... })`。
 
 ### 路径别名
 

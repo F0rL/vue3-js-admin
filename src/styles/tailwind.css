@@ -1,7 +1,4 @@
-@layer theme, components, utilities;
-
-@import 'tailwindcss/theme.css' layer(theme);
-@import 'tailwindcss/utilities.css' layer(utilities);
+@import 'tailwindcss';
 
 /* =============================================
  * Tailwind v4 Theme Integration
@@ -23,52 +20,4 @@
 @theme {
   /* Primary */
   --color-primary: var(--el-color-primary);
-  --color-primary-50: var(--el-color-primary-light-9);
-  --color-primary-100: var(--el-color-primary-light-8);
-  --color-primary-200: var(--el-color-primary-light-7);
-  --color-primary-300: var(--el-color-primary-light-5);
-  --color-primary-400: var(--el-color-primary-light-3);
-  --color-primary-500: var(--el-color-primary);
-  --color-primary-600: var(--el-color-primary-dark-2);
-
-  /* Functional */
-  --color-success: var(--el-color-success);
-  --color-success-50: var(--el-color-success-light-9);
-  --color-success-100: var(--el-color-success-light-7);
-  --color-success-500: var(--el-color-success);
-  --color-success-600: var(--el-color-success-dark-2);
-
-  --color-warning: var(--el-color-warning);
-  --color-warning-50: var(--el-color-warning-light-9);
-  --color-warning-100: var(--el-color-warning-light-7);
-  --color-warning-500: var(--el-color-warning);
-  --color-warning-600: var(--el-color-warning-dark-2);
-
-  --color-danger: var(--el-color-danger);
-  --color-danger-50: var(--el-color-danger-light-9);
-  --color-danger-100: var(--el-color-danger-light-7);
-  --color-danger-500: var(--el-color-danger);
-  --color-danger-600: var(--el-color-danger-dark-2);
-
-  --color-info: var(--el-color-info);
-  --color-info-50: var(--el-color-info-light-9);
-  --color-info-100: var(--el-color-info-light-7);
-  --color-info-500: var(--el-color-info);
-  --color-info-600: var(--el-color-info-dark-2);
-
-  /* Surface */
-  --color-bg: var(--el-bg-color);
-  --color-bg-page: var(--el-bg-color-page);
-  --color-bg-overlay: var(--el-bg-color-overlay);
-
-  /* Text */
-  --color-text-primary: var(--el-text-color-primary);
-  --color-text-regular: var(--el-text-color-regular);
-  --color-text-secondary: var(--el-text-color-secondary);
-  --color-text-placeholder: var(--el-text-color-placeholder);
-
-  /* Border */
-  --color-border: var(--el-border-color);
-  --color-border-light: var(--el-border-color-light);
-  --color-border-dark: var(--el-border-color-dark);
 }

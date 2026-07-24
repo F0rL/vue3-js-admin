@@ -19,7 +19,7 @@
  *   message.info('权限变更，请重新登录')             // 提示
  *
  *   message.success('保存成功', { duration: 5000 })               // 覆盖时长
- *   message.error('失败', { showClose: false, grouping: false })   // 更细控制
+ *   message.error('失败', { grouping: false })   // 更细控制
  *   message.create({ message: '自定义', type: 'error', duration: 0 }) // 完全自定义
  *   message.closeAll()                             // 关闭所有弹窗
  *
@@ -102,12 +102,7 @@
  *   feedbackDefaults.messageBox.confirmButtonText = '确认'
  * ==================================================================
  */
-import {
-  ElMessage,
-  ElNotification,
-  ElMessageBox,
-  ElLoading,
-} from 'element-plus'
+import { ElMessage, ElNotification, ElMessageBox, ElLoading } from 'element-plus'
 import type {
   MessageOptions,
   NotificationOptions,
@@ -120,7 +115,6 @@ const DEFAULTS = {
   message: {
     duration: 3000,
     grouping: true,
-    showClose: true,
   } as Partial<MessageOptions>,
   notification: {
     duration: 4500,
@@ -150,8 +144,7 @@ export const message = {
   error: makeMessage('error'),
   warning: makeMessage('warning'),
   info: makeMessage('info'),
-  create: (options: Partial<MessageOptions> = {}) =>
-    ElMessage({ ...DEFAULTS.message, ...options }),
+  create: (options: Partial<MessageOptions> = {}) => ElMessage({ ...DEFAULTS.message, ...options }),
   closeAll: ElMessage.closeAll,
 }
 
@@ -193,7 +186,11 @@ export const notify = {
 
 // ============== MessageBox ==============
 
-export function confirm(message: string, title = '提示', options: Partial<ElMessageBoxOptions> = {}) {
+export function confirm(
+  message: string,
+  title = '提示',
+  options: Partial<ElMessageBoxOptions> = {},
+) {
   return ElMessageBox.confirm(message, title, {
     ...DEFAULTS.messageBox,
     ...options,
@@ -210,7 +207,11 @@ export function alert(message: string, title = '提示', options: Partial<ElMess
   })
 }
 
-export function prompt(message: string, title = '提示', options: Partial<ElMessageBoxOptions> = {}) {
+export function prompt(
+  message: string,
+  title = '提示',
+  options: Partial<ElMessageBoxOptions> = {},
+) {
   return ElMessageBox.prompt(message, title, {
     ...DEFAULTS.messageBox,
     type: 'info',
@@ -224,9 +225,8 @@ export function showLoading(
   text?: string | LoadingOptions,
   options: Partial<LoadingOptions> = {},
 ): LoadingInstance {
-  const textResolved =
-    typeof text === 'string' ? text : DEFAULTS.loading.text
-  const extraOptions = typeof text === 'string' ? options : (text || {})
+  const textResolved = typeof text === 'string' ? text : DEFAULTS.loading.text
+  const extraOptions = typeof text === 'string' ? options : text || {}
   return ElLoading.service({
     ...DEFAULTS.loading,
     text: textResolved,
