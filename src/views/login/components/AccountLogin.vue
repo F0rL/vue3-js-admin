@@ -4,12 +4,14 @@ import type { FormInstance } from 'element-plus'
 import { useRouter, useRoute } from 'vue-router'
 import { message } from '@/utils/feedback'
 import { useUserStore } from '@/stores/modules/user'
+import { useRememberStore } from '@/stores/modules/remember'
 import { md5Hash } from '@/utils/encrypt'
 import * as authApi from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()
 const userStore = useUserStore()
+const rememberStore = useRememberStore()
 
 const formRef = useTemplateRef<FormInstance>('formRef')
 const submitting = ref(false)
@@ -26,8 +28,8 @@ interface LoginForm {
 }
 
 const form = reactive<LoginForm>({
-  username: 'admin',
-  password: 'admin123321',
+  username: '',
+  password: '',
   captchaCode: '',
   captchaKey: '',
 })
@@ -50,7 +52,16 @@ async function fetchCaptcha() {
   form.captchaKey = msg.key
 }
 
-onMounted(() => {
+onMounted(async () => {
+  // 默认不勾选；仅当存在未过期的已保存凭据时才恢复勾选并填充表单
+  if (rememberStore.hasSaved) {
+    const saved = rememberStore.load()
+    if (saved) {
+      rememberMe.value = true
+      form.username = saved.username
+      form.password = saved.password
+    }
+  }
   fetchCaptcha().catch(() => {})
 })
 
@@ -66,6 +77,11 @@ async function handleSubmit() {
       verifyCode,
       verifyKey: form.captchaKey,
     })
+    if (rememberMe.value) {
+      rememberStore.save(form.username, form.password)
+    } else {
+      rememberStore.clear()
+    }
     await userStore.fetchUserInfo()
     message.success('登录成功')
     const redirectPath =

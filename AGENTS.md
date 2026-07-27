@@ -141,3 +141,18 @@ withLoading(requestPromise, '保存中...')
 ### 路径别名
 
 `@` → `src/`（在 `vite.config.js` 和 `jsconfig.json` 中均已配置）。
+
+## Git 提交规范
+
+提交信息必须遵循 [Conventional Commits](https://www.conventionalcommits.org/) 规范，格式如下：
+
+```
+<type>: <简短描述>
+
+<详细说明（可选）>
+```
+
+- **type**：使用英文，可选 `feat`、`fix`、`refactor`、`perf`、`style`、`test`、`docs`、`chore`、`ci` 等。
+- **简短描述**和**详细说明**：使用中文撰写。
+- 提交信息必须准确概括本次更改的内容和原因。
+- 重要的业务修改、功能修改、样式修改放在前面，文档等其它修改放在后面
