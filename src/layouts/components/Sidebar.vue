@@ -12,10 +12,9 @@
         active-text-color="#2563eb"
       >
         <SidebarItem
-          v-for="route in menuRoutes"
-          :key="route.path"
-          :item="route"
-          :base-path="route.path"
+          v-for="item in menuData"
+          :key="item.id"
+          :item="item"
         />
       </el-menu>
     </el-scrollbar>
@@ -38,18 +37,21 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
-import { asyncRoutes } from '@/router'
+import { usePermissionStore } from '@/stores/modules/permission'
 import iconMap from '@/icons'
 import SidebarItem from './SidebarItem.vue'
 
 const route = useRoute()
 const appStore = useAppStore()
+const permissionStore = usePermissionStore()
 
 const isCollapse = computed(() => appStore.sidebarIconOnly)
 
 const activeMenu = computed(() => (route.meta?.activeMenu as string) || route.path)
 
-const menuRoutes = computed(() => asyncRoutes.filter(r => !r.meta?.hidden))
+const menuData = computed(() =>
+  permissionStore.menuData.filter((item: any) => item.isMenuShow !== false),
+)
 </script>
 
 <style scoped>

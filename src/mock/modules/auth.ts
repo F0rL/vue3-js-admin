@@ -1,18 +1,9 @@
 import type { AxiosRequestConfig } from 'axios'
 import type MockAdapter from 'axios-mock-adapter'
+import { makeResp } from '../utils'
 
 const MOCK_CAPTCHA_KEY = 'mock-captcha-key'
 const MOCK_CAPTCHA_HASH = 'B3976D6E3AFA5DC722FC0E36A59412C3'
-
-function makeResp(msg: unknown, code = 0): object {
-  return {
-    flag: code === 0,
-    code,
-    msg,
-    total: 0,
-    time: new Date().toISOString(),
-  }
-}
 
 export function registerAuthMock(mock: MockAdapter) {
   // 获取验证码
@@ -50,8 +41,12 @@ export function registerAuthMock(mock: MockAdapter) {
       id: '1',
       name: '管理员',
       avatar: '',
-      roles: ['admin'],
-      permissions: ['*'],
+      roles: [
+        {
+          id: '10086',
+          name: '超级管理员组',
+        },
+      ],
     }),
   )
 

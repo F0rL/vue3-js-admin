@@ -49,6 +49,7 @@ import { computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
 import { useUserStore } from '@/stores/modules/user'
+import { usePermissionStore } from '@/stores/modules/permission'
 import { confirm } from '@/utils/feedback'
 import iconMap from '@/icons'
 
@@ -56,6 +57,7 @@ const route = useRoute()
 const router = useRouter()
 const appStore = useAppStore()
 const userStore = useUserStore()
+const permissionStore = usePermissionStore()
 
 const breadcrumbs = computed(() =>
   route.matched.filter(item => item.meta?.title)
@@ -64,6 +66,7 @@ const breadcrumbs = computed(() =>
 async function handleLogout() {
   if (await confirm('确定要退出登录吗？')) {
     await userStore.logout()
+    permissionStore.resetRoutes()
     await router.push('/login')
   }
 }

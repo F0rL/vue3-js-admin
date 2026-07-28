@@ -1,4 +1,5 @@
 import { message } from '@/utils/feedback'
+import { navigateToError } from '@/utils/navigate-error'
 import type { AxiosError } from 'axios'
 
 /* ============ 业务错误码常量 ============ */
@@ -51,6 +52,11 @@ export function handleHttpError(error: AxiosError<ApiResponse<unknown>>) {
   if (status === 401) {
     message.error('登录已过期，请重新登录')
     window.location.href = '/login'
+    return
+  }
+
+  if (status === 403 || status === 404 || status === 500) {
+    navigateToError(String(status))
     return
   }
 

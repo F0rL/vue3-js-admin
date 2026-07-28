@@ -14,6 +14,11 @@ export interface LoginPayload {
 }
 
 /** 登录用户信息 */
+
+export interface role {
+  id: string
+  name: string
+}
 export interface UserInfo {
   /** 用户 ID */
   id: string
@@ -22,9 +27,7 @@ export interface UserInfo {
   /** 头像地址 */
   avatar: string
   /** 角色列表 */
-  roles: string[]
-  /** 权限列表 */
-  permissions: string[]
+  roles: role[]
 }
 
 export function getLoginVerCode(): ApiMethod<{

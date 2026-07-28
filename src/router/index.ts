@@ -2,9 +2,11 @@ import type { RouteRecordRaw } from 'vue-router'
 import { createRouter, createWebHistory } from 'vue-router'
 import NProgress from 'nprogress'
 import { useUserStore } from '@/stores/modules/user'
+import { usePermissionStore } from '@/stores/modules/permission'
 import { config } from '@/config'
 
-import DefaultLayout from '@/layouts/default/index.vue'
+import dashboardRoutes from './modules/dashboard'
+import systemRoutes from './modules/system'
 
 declare module 'vue-router' {
   interface RouteMeta {
@@ -12,6 +14,7 @@ declare module 'vue-router' {
     icon?: string
     hidden?: boolean
     affix?: boolean
+    activeMenu?: string
   }
 }
 
@@ -23,63 +26,57 @@ export const constantRoutes: RouteRecordRaw[] = [
     meta: { hidden: true, title: '登录' },
   },
   {
+    path: '/error',
+    name: 'Error',
+    component: () => import('@/views/result/error.vue'),
+    meta: { hidden: true, title: '错误' },
+  },
+  {
     path: '/404',
-    name: '404',
-    component: () => import('@/views/error/404.vue'),
-    meta: { hidden: true, title: '404' },
+    redirect: '/error?status=404',
+    meta: { hidden: true },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/error?status=404',
+    meta: { hidden: true },
   },
 ]
 
-export const asyncRoutes: RouteRecordRaw[] = [
-  {
-    path: '/',
-    component: DefaultLayout,
-    redirect: '/dashboard',
-    children: [
-      {
-        path: 'dashboard',
-        name: 'Dashboard',
-        component: () => import('@/views/dashboard/index.vue'),
-        meta: { title: '首页', icon: 'HomeFilled', affix: true },
-      },
-    ],
-  },
-  { path: '/:pathMatch(.*)*', redirect: '/404', meta: { hidden: true } },
-]
+export const asyncRoutes: RouteRecordRaw[] = [...dashboardRoutes, ...systemRoutes]
 
 const router = createRouter({
   history: createWebHistory(config.BASE_URL),
-  routes: [...constantRoutes, ...asyncRoutes],
+  routes: constantRoutes,
   scrollBehavior: () => ({ top: 0 }),
 })
 
-const whiteList = ['/login']
+const whiteList = ['/login', '/404', '/error']
 
 router.beforeEach(async to => {
   NProgress.start()
-  // document.title = to.meta.title ? `${to.meta.title} - Admin` : 'Admin Template'
   const userStore = useUserStore()
-  const hasToken = !!userStore.token
+  const permissionStore = usePermissionStore()
 
-  if (hasToken) {
-    if (to.path === '/login') {
-      return { path: '/' }
-    }
-    if (!userStore.userInfo.name) {
+  if (userStore.token) {
+    if (to.path === '/login') return '/'
+    if (!permissionStore.isRoutesLoaded) {
       try {
-        await userStore.fetchUserInfo()
-        return { ...to, replace: true }
+        if (!userStore.userInfo.name) {
+          await userStore.fetchUserInfo()
+        }
+        await permissionStore.generateRoutes()
+        return { path: to.path, query: to.query, replace: true }
       } catch {
         userStore.resetToken()
+        permissionStore.resetRoutes()
         return `/login?redirect=${to.path}`
       }
     }
     return
   }
 
-  if (whiteList.includes(to.path)) {
-    return
-  }
+  if (whiteList.includes(to.path)) return
   return `/login?redirect=${to.path}`
 })
 

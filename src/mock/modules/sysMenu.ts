@@ -1,36 +1,100 @@
 import type MockAdapter from 'axios-mock-adapter'
+import { makeResp } from '../utils'
 
 export function registerSysMenuMock(mock: MockAdapter) {
-  // 获取用户权限菜单
-  mock.onPost('/api/SysMenu/GetUserRightMenu').reply(200, {
-    flag: true,
-    code: 0,
-    msg: [
-      {
-        path: '/dashboard',
-        name: 'Dashboard',
-        meta: { title: '首页', icon: 'HomeFilled' },
-      },
-      {
-        path: '/system',
-        name: 'System',
-        meta: { title: '系统管理', icon: 'Setting' },
-        children: [
-          { path: '/system/user', name: 'User', meta: { title: '用户管理', icon: 'User' } },
-          { path: '/system/role', name: 'Role', meta: { title: '角色管理', icon: 'Avatar' } },
-        ],
-      },
-      {
-        path: '/example',
-        name: 'Example',
-        meta: { title: '示例页面', icon: 'Document' },
-        children: [
-          { path: '/example/table', name: 'Table', meta: { title: '综合表格', icon: 'Grid' } },
-          { path: '/example/form', name: 'Form', meta: { title: '综合表单', icon: 'Edit' } },
-        ],
-      },
-    ],
-    total: 0,
-    time: new Date().toISOString(),
-  })
+  const menuData = [
+    {
+      id: '1',
+      title: '首页',
+      path: 'dashboard',
+      icon: 'el-icon-s-home',
+      status: 1,
+      createTime: '2024-07-04 13:49:00',
+      isMenuShow: true,
+    },
+    {
+      id: '473778965740257280',
+      title: '系统设置',
+      icon: 'el-icon-s-tools',
+      status: 1,
+      createTime: '2024-07-31 09:08:27',
+      isMenuShow: true,
+      children: [
+        {
+          id: '473778965740257288',
+          title: '账户管理',
+          icon: 'el-icon-user',
+          path: 'sys-user-list',
+          status: 1,
+          isMenuShow: true,
+        },
+        {
+          id: '473778965740257289',
+          title: '账户编辑',
+          icon: 'el-icon-user',
+          path: 'sys-user-edit',
+          status: 1,
+          isMenuShow: false,
+        },
+        {
+          id: '473778965740257287',
+          title: '日志管理',
+          icon: 'el-icon-s-flag',
+          path: 'sys-log-list',
+          status: 1,
+          isMenuShow: true,
+        },
+        {
+          id: '473778965740257286',
+          title: '菜单编辑',
+          icon: 'el-icon-menu',
+          path: 'sys-menu-edit',
+          status: 1,
+          isMenuShow: false,
+        },
+        {
+          id: '473778965740257285',
+          title: '菜单管理',
+          icon: 'el-icon-menu',
+          path: 'sys-menu-list',
+          status: 1,
+          isMenuShow: true,
+        },
+        {
+          id: '473778965740257284',
+          title: '新增成员',
+          icon: 'el-icon-s-flag',
+          path: 'sys-org-add',
+          status: 1,
+          isMenuShow: false,
+        },
+        {
+          id: '473778965740257282',
+          title: '组织架构',
+          icon: 'el-icon-s-flag',
+          path: 'sys-org-list',
+          status: 1,
+          isMenuShow: true,
+        },
+        {
+          id: '473778965740257283',
+          title: '编辑成员',
+          icon: 'el-icon-s-flag',
+          path: 'sys-org-edit',
+          status: 1,
+          isMenuShow: false,
+        },
+        {
+          id: '473778965740257281',
+          title: '角色管理',
+          icon: 'el-icon-s-custom',
+          path: 'sys-role-list',
+          status: 1,
+          isMenuShow: true,
+        },
+      ],
+    },
+  ]
+
+  mock.onPost('/api/SysMenu/GetUserRightMenu').reply(200, makeResp(menuData, 0, menuData.length))
 }
