@@ -37,6 +37,7 @@
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
+import type { MenuItem } from '@/router/utils/filter'
 import { usePermissionStore } from '@/stores/modules/permission'
 import iconMap from '@/icons'
 import SidebarItem from './SidebarItem.vue'
@@ -50,7 +51,7 @@ const isCollapse = computed(() => appStore.sidebarIconOnly)
 const activeMenu = computed(() => (route.meta?.activeMenu as string) || route.path)
 
 const menuData = computed(() =>
-  permissionStore.menuData.filter((item: any) => item.isMenuShow !== false),
+  permissionStore.menuData.filter((item: MenuItem) => item.isMenuShow !== false),
 )
 </script>
 

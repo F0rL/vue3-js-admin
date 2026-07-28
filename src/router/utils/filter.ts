@@ -10,25 +10,6 @@ export interface MenuItem {
   children?: MenuItem[]
 }
 
-const API_ICON_MAP: Record<string, string> = {
-  'el-icon-s-home': 'HomeFilled',
-  'el-icon-s-tools': 'Setting',
-  'el-icon-user': 'User',
-  'el-icon-user-solid': 'User',
-  'el-icon-s-flag': 'List',
-  'el-icon-menu': 'Menu',
-  'el-icon-s-custom': 'Avatar',
-  'el-icon-message': 'Message',
-  'el-icon-s-order': 'Document',
-  'el-icon-document-copy': 'Document',
-  'el-icon-s-marketing': 'Monitor',
-  'el-icon-files': 'Grid',
-}
-
-export function resolveIcon(apiIcon: string): string {
-  return API_ICON_MAP[apiIcon] || 'Document'
-}
-
 export function collectMenuPaths(menuTree: MenuItem[]): Set<string> {
   const paths = new Set<string>()
   function walk(nodes: MenuItem[]) {

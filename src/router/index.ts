@@ -38,7 +38,8 @@ export const constantRoutes: RouteRecordRaw[] = [
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/error?status=404',
+    name: 'CatchAll',
+    component: () => import('@/views/result/error.vue'),
     meta: { hidden: true },
   },
 ]
@@ -57,7 +58,6 @@ router.beforeEach(async to => {
   NProgress.start()
   const userStore = useUserStore()
   const permissionStore = usePermissionStore()
-
   if (userStore.token) {
     if (to.path === '/login') return '/'
     if (!permissionStore.isRoutesLoaded) {

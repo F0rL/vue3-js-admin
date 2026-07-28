@@ -28,7 +28,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import iconMap from '@/icons'
-import { resolveIcon } from '@/router/utils/filter'
 import type { MenuItem } from '@/router/utils/filter'
 import SidebarItem from './SidebarItem.vue'
 
@@ -36,9 +35,7 @@ const props = defineProps<{
   item: MenuItem
 }>()
 
-const resolvedIcon = computed(() =>
-  props.item.icon ? resolveIcon(props.item.icon) : null,
-)
+const resolvedIcon = computed(() => props.item.icon || null)
 
 const visibleChildren = computed(() =>
   (props.item.children || []).filter(c => c.isMenuShow !== false),
