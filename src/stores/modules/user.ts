@@ -13,12 +13,10 @@ export const useUserStore = defineStore(
       name: '',
       avatar: '',
       roles: [],
-      permissions: [],
     })
 
     const isLoggedIn = computed(() => !!token.value)
     const roles = computed(() => userInfo.value.roles)
-    const permissions = computed(() => userInfo.value.permissions)
 
     async function login(loginForm: LoginPayload) {
       const password = encryptPwdRsa(loginForm.password)
@@ -33,7 +31,6 @@ export const useUserStore = defineStore(
         name: msg.name,
         avatar: msg.avatar,
         roles: msg.roles,
-        permissions: msg.permissions,
       }
       return msg
     }
@@ -49,7 +46,6 @@ export const useUserStore = defineStore(
         name: '',
         avatar: '',
         roles: [],
-        permissions: [],
       }
     }
 
@@ -58,7 +54,6 @@ export const useUserStore = defineStore(
       userInfo,
       isLoggedIn,
       roles,
-      permissions,
       login,
       fetchUserInfo,
       logout,

@@ -41,16 +41,18 @@ const sidebarWidthClass = computed(() => {
 </script>
 
 <style scoped>
-.fade-slide-enter-active,
+.fade-slide-enter-active {
+  transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
 .fade-slide-leave-active {
-  transition: all 0.3s ease;
+  transition: all 0.18s cubic-bezier(0.4, 0, 1, 1);
 }
 .fade-slide-enter-from {
   opacity: 0;
-  transform: translateY(10px);
+  transform: translateY(6px) scale(0.98);
 }
 .fade-slide-leave-to {
   opacity: 0;
-  transform: translateY(-10px);
+  transform: translateY(-4px) scale(0.99);
 }
 </style>
