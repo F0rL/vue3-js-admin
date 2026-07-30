@@ -34,12 +34,6 @@ const treeData = computed(() => {
 
 onUnmounted(() => abort())
 
-function resolveStatus(row: any): number {
-  const s = row.status
-  if (typeof s === 'object' && s !== null) return (s as { value: number }).value
-  return (s as number) ?? 1
-}
-
 function handleSearch() {
   fetchTree()
 }
@@ -94,7 +88,6 @@ async function handleToggleShow(row: any, val: boolean) {
       icon: msg.icon || '',
       order: msg.order ?? 99,
       isMenuShow: val,
-      status: typeof msg.status === 'object' ? msg.status.value : ((msg.status as number) ?? 1),
       parentId: msg.parent?.id ?? null,
     }).send()
 
@@ -108,6 +101,7 @@ async function handleToggleShow(row: any, val: boolean) {
 }
 
 async function handleDelete(row: any) {
+  if (row._disabled) return
   const ok = await confirm(`确定删除菜单「${row.title}」？`, '删除确认', {
     type: 'error',
     confirmButtonText: '删除',
@@ -187,21 +181,12 @@ async function handleDelete(row: any) {
           </template>
         </el-table-column>
         <el-table-column prop="order" label="排序号" width="80" align="center" />
-        <el-table-column label="移动端" width="90" align="center">
-          <template #default="{ row }">
-            <el-tag
-              :type="resolveStatus(row) === 1 ? 'success' : 'danger'"
-              size="small"
-              disable-transitions
-            >
-              {{ resolveStatus(row) === 1 ? '启用' : '禁用' }}
-            </el-tag>
-          </template>
-        </el-table-column>
         <el-table-column label="操作" width="160" align="center" fixed="right">
           <template #default="{ row }">
-            <el-button type="primary" size="small" link @click="openEdit(row)">编辑</el-button>
-            <el-button type="danger" size="small" link @click="handleDelete(row)">删除</el-button>
+            <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
+            <el-button type="danger" link :disabled="row._disabled" @click="handleDelete(row)"
+              >删除</el-button
+            >
           </template>
         </el-table-column>
       </el-table>

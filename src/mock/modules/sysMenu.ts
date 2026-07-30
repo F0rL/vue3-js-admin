@@ -14,19 +14,20 @@ interface MockMenu {
   path?: string
   icon?: string
   order: number
+  createTime: string
   isMenuShow: boolean
-  status: number
+  _disabled: boolean
   parentId: string | null
 }
 
 let menus: MockMenu[] = [
-  { id: '1', title: '首页', path: 'dashboard', icon: 'ep:home-filled', order: 1, isMenuShow: true, status: 1, parentId: null },
-  { id: '2', title: '系统设置', icon: 'ep:setting', order: 2, isMenuShow: true, status: 1, parentId: null },
-  { id: '3', title: '菜单管理', path: 'sys-menu-list', icon: 'ep:menu', order: 1, isMenuShow: true, status: 1, parentId: '2' },
-  { id: '4', title: '角色管理', path: 'sys-role-list', icon: 'ri:shield-user-line', order: 2, isMenuShow: true, status: 1, parentId: '2' },
-  { id: '5', title: '账户管理', path: 'sys-user-list', icon: 'ep:user', order: 3, isMenuShow: true, status: 1, parentId: '2' },
-  { id: '6', title: '组织架构', path: 'sys-org-list', icon: 'ep:list', order: 4, isMenuShow: true, status: 1, parentId: '2' },
-  { id: '7', title: '日志管理', path: 'sys-log-list', icon: 'ep:document', order: 5, isMenuShow: true, status: 1, parentId: '2' },
+  { id: '1', title: '首页', path: 'dashboard', icon: 'ep:home-filled', order: 1, createTime: '2024-07-04 13:49:00', isMenuShow: true, _disabled: false, parentId: null },
+  { id: '2', title: '系统设置', icon: 'ep:setting', order: 2, createTime: '2024-07-04 13:49:00', isMenuShow: true, _disabled: true, parentId: null },
+  { id: '3', title: '菜单管理', path: 'sys-menu-list', icon: 'ep:menu', order: 1, createTime: '2024-07-04 13:49:00', isMenuShow: true, _disabled: true, parentId: '2' },
+  { id: '4', title: '角色管理', path: 'sys-role-list', icon: 'ri:shield-user-line', order: 2, createTime: '2024-07-04 13:49:00', isMenuShow: true, _disabled: true, parentId: '2' },
+  { id: '5', title: '账户管理', path: 'sys-user-list', icon: 'ep:user', order: 3, createTime: '2024-07-04 13:49:00', isMenuShow: true, _disabled: true, parentId: '2' },
+  { id: '6', title: '组织架构', path: 'sys-org-list', icon: 'ep:list', order: 4, createTime: '2024-07-04 13:49:00', isMenuShow: true, _disabled: true, parentId: '2' },
+  { id: '7', title: '日志管理', path: 'sys-log-list', icon: 'ep:document', order: 5, createTime: '2024-07-04 13:49:00', isMenuShow: true, _disabled: true, parentId: '2' },
 ]
 
 function buildTree(items: MockMenu[]): unknown[] {
@@ -63,7 +64,6 @@ function buildFlatList(items: MockMenu[], searchKey?: string): unknown[] {
 function toEntity(item: MockMenu): unknown {
   return {
     ...item,
-    status: { value: item.status },
     parent: item.parentId ? { id: item.parentId } : null,
   }
 }
@@ -115,8 +115,9 @@ export function registerSysMenuMock(mock: MockAdapter) {
       path: data.path || '',
       icon: data.icon || '',
       order: data.order ?? 99,
+      createTime: new Date().toISOString().replace('T', ' ').substring(0, 19),
       isMenuShow: data.isMenuShow ?? true,
-      status: data.status ?? 1,
+      _disabled: false,
       parentId: data.parentId || null,
     }
     menus.push(item)
@@ -133,8 +134,9 @@ export function registerSysMenuMock(mock: MockAdapter) {
       path: data.path || '',
       icon: data.icon || '',
       order: data.order ?? 99,
+      createTime: menus[idx].createTime,
       isMenuShow: data.isMenuShow ?? true,
-      status: data.status ?? 1,
+      _disabled: menus[idx]._disabled,
       parentId: data.parentId || null,
     }
     return [200, makeResp(null)]
@@ -143,6 +145,10 @@ export function registerSysMenuMock(mock: MockAdapter) {
   mock.onPost('/api/SysMenu/DeleteMenu').reply((config) => {
     const data = JSON.parse(config.data)
     const ids: string[] = data.ids || []
+    const systemMenu = menus.find((m) => ids.includes(m.id) && m._disabled)
+    if (systemMenu) {
+      return [200, makeResp(`系统菜单「${systemMenu.title}」不可删除`, -1)]
+    }
     menus = menus.filter((m) => !ids.includes(m.id))
     return [200, makeResp(null)]
   })

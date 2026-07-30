@@ -4,7 +4,7 @@ import { useRequest } from 'alova/client'
 import type { FormRules } from 'element-plus'
 import SelectIcon from '@/components/SelectIcon/index.vue'
 import { getParentMenuAll, getMenuEntity, createMenu, updateMenu } from '@/api/sysMenu'
-import type { MenuPayload } from '@/api/sysMenu'
+import type { MenuPayload, MenuTreeNode } from '@/api/sysMenu'
 import { message, withLoading } from '@/utils/feedback'
 
 const emit = defineEmits<{
@@ -12,7 +12,7 @@ const emit = defineEmits<{
 }>()
 
 const visible = ref(false)
-const editingRow = ref<any | null>(null)
+const editingRow = ref<MenuTreeNode | null>(null)
 const formRef = useTemplateRef('formRef')
 const submitting = ref(false)
 const loading = ref(false)
@@ -20,15 +20,18 @@ const parentList = ref<{ id: string; title: string }[]>([])
 
 const isEdit = computed(() => !!editingRow.value)
 
-const model = reactive<MenuPayload>({
-  title: '',
-  path: '',
-  icon: 'ep:menu',
-  order: 99,
-  isMenuShow: true,
-  status: 1,
-  parentId: null,
-})
+function createDefaultMenu(): MenuPayload {
+  return {
+    title: '',
+    path: '',
+    icon: 'ep:menu',
+    order: 99,
+    isMenuShow: true,
+    parentId: null,
+  }
+}
+
+const model = reactive<MenuPayload>(createDefaultMenu())
 
 const rules: FormRules = {
   parentId: [{ required: true, message: '请选择父级菜单', trigger: 'change' }],
@@ -42,14 +45,8 @@ const { send: fetchEntity } = useRequest((id: string) => getMenuEntity({ id }), 
 })
 
 function resetForm() {
-  model.title = ''
-  model.path = ''
-  model.icon = 'Menu'
-  model.order = 99
-  model.isMenuShow = true
-  model.status = 1
-  model.parentId = null
-  formRef.value?.resetFields()
+  Object.assign(model, createDefaultMenu())
+  formRef.value?.clearValidate()
 }
 
 async function loadParents() {
@@ -58,7 +55,7 @@ async function loadParents() {
     let list: { id: string; title: string }[] = msg
 
     if (isEdit.value && editingRow.value?.id) {
-      list = list.filter(item => item.id !== editingRow.value.id)
+      list = list.filter(item => item.id !== editingRow.value!.id)
     }
     parentList.value = list
   } catch {
@@ -73,14 +70,9 @@ async function loadEntity() {
     if (!msg) return
     model.title = msg.title || ''
     model.path = msg.path || ''
-    model.icon = msg.icon || 'Menu'
+    model.icon = msg.icon || 'ep:menu'
     model.order = msg.order ?? 99
     model.isMenuShow = msg.isMenuShow ?? true
-    if (typeof msg.status === 'object' && msg.status !== null) {
-      model.status = msg.status.value
-    } else {
-      model.status = (msg.status as number) ?? 1
-    }
     model.parentId = msg.parent?.id ?? '-1'
   } catch {
     visible.value = false
@@ -96,17 +88,17 @@ async function handleSave() {
     return
   }
 
-  const payload = { ...model }
+  const payload: MenuPayload = { ...model }
   if (payload.parentId === '-1') {
     payload.parentId = null
   }
 
   try {
     submitting.value = true
-    const fn = isEdit.value ? updateMenu : createMenu
     if (isEdit.value) {
-      payload.id = editingRow.value.id
+      payload.id = editingRow.value!.id
     }
+    const fn = isEdit.value ? updateMenu : createMenu
     await withLoading(fn(payload).send(), '保存中...')
     message.success('保存成功')
     visible.value = false
@@ -118,17 +110,20 @@ async function handleSave() {
   }
 }
 
-async function open(row?: any) {
+async function open(row?: MenuTreeNode) {
   editingRow.value = row ?? null
   visible.value = true
   loading.value = true
-  await loadParents()
-  if (isEdit.value) {
-    await loadEntity()
-  } else {
-    resetForm()
+  try {
+    await loadParents()
+    if (isEdit.value) {
+      await loadEntity()
+    } else {
+      resetForm()
+    }
+  } finally {
+    loading.value = false
   }
-  loading.value = false
 }
 
 defineExpose({ open })
@@ -170,7 +165,7 @@ defineExpose({ open })
       </el-form-item>
 
       <el-form-item label="侧边栏展示">
-        <el-switch v-model="model.isMenuShow" active-text="展示" inactive-text="隐藏" />
+        <el-switch v-model="model.isMenuShow" />
       </el-form-item>
 
       <el-form-item label="图标">
@@ -183,16 +178,6 @@ defineExpose({ open })
           :min="1"
           :max="1000000000"
           placeholder="请输入排序号"
-        />
-      </el-form-item>
-
-      <el-form-item label="移动端状态">
-        <el-switch
-          v-model="model.status"
-          :active-value="1"
-          :inactive-value="-1"
-          active-text="启用"
-          inactive-text="禁用"
         />
       </el-form-item>
     </el-form>

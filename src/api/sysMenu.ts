@@ -7,12 +7,14 @@ export interface MenuTreeNode {
   path?: string
   icon?: string
   order?: number
+  createTime?: string
   isMenuShow?: boolean
-  status?: { value: number } | number
+  _disabled?: boolean
   parent?: { id: string } | null
   sysFile?: { sysFileId: string; url: string }
   children?: MenuTreeNode[]
 }
+
 
 export interface MenuPayload {
   id?: string
@@ -21,7 +23,6 @@ export interface MenuPayload {
   icon?: string
   order: number
   isMenuShow: boolean
-  status: number
   parentId: string | null
 }
 
