@@ -37,10 +37,16 @@ export const usePermissionStore = defineStore('permission', () => {
     menuData.value = []
   }
 
+  async function refreshMenu() {
+    resetRoutes()
+    await generateRoutes()
+  }
+
   return {
     menuData,
     isRoutesLoaded,
     generateRoutes,
     resetRoutes,
+    refreshMenu,
   }
 })

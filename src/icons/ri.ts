@@ -34,6 +34,8 @@ import RiComputerLine from '~icons/ri/computer-line'
 import RiShoppingCartLine from '~icons/ri/shopping-cart-line'
 import RiMoneyDollarCircleLine from '~icons/ri/money-dollar-circle-line'
 import RiQrCodeLine from '~icons/ri/qr-code-line'
+import RiExpandVerticalLine from '~icons/ri/expand-vertical-line'
+import RiCollapseVerticalLine from '~icons/ri/collapse-vertical-line'
 
 const riMap: Record<string, Component> = {
   'ri:home-4-line': RiHome4Line,
@@ -71,6 +73,8 @@ const riMap: Record<string, Component> = {
   'ri:shopping-cart-line': RiShoppingCartLine,
   'ri:money-dollar-circle-line': RiMoneyDollarCircleLine,
   'ri:qr-code-line': RiQrCodeLine,
+  'ri:expand-vertical-line': RiExpandVerticalLine,
+  'ri:collapse-vertical-line': RiCollapseVerticalLine,
 }
 
 export default riMap

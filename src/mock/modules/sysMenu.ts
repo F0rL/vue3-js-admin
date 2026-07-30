@@ -1,100 +1,149 @@
 import type MockAdapter from 'axios-mock-adapter'
 import { makeResp } from '../utils'
 
-export function registerSysMenuMock(mock: MockAdapter) {
-  const menuData = [
-    {
-      id: '1',
-      title: '首页',
-      path: 'dashboard',
-      icon: 'HomeFilled',
-      status: 1,
-      createTime: '2024-07-04 13:49:00',
-      isMenuShow: true,
-    },
-    {
-      id: '473778965740257280',
-      title: '系统设置',
-      icon: 'Setting',
-      status: 1,
-      createTime: '2024-07-31 09:08:27',
-      isMenuShow: true,
-      children: [
-        {
-          id: '473778965740257286',
-          title: '菜单编辑',
-          icon: 'Menu',
-          path: 'sys-menu-edit',
-          status: 1,
-          isMenuShow: false,
-        },
-        {
-          id: '473778965740257285',
-          title: '菜单管理',
-          icon: 'Menu',
-          path: 'sys-menu-list',
-          status: 1,
-          isMenuShow: true,
-        },
-        {
-          id: '473778965740257281',
-          title: '角色管理',
-          icon: 'ri:shield-user-line',
-          path: 'sys-role-list',
-          status: 1,
-          isMenuShow: true,
-        },
-        {
-          id: '473778965740257288',
-          title: '账户管理',
-          icon: 'User',
-          path: 'sys-user-list',
-          status: 1,
-          isMenuShow: true,
-        },
-        {
-          id: '473778965740257289',
-          title: '账户编辑',
-          icon: 'User',
-          path: 'sys-user-edit',
-          status: 1,
-          isMenuShow: false,
-        },
-        {
-          id: '473778965740257284',
-          title: '新增成员',
-          icon: 'Plus',
-          path: 'sys-org-add',
-          status: 1,
-          isMenuShow: false,
-        },
-        {
-          id: '473778965740257282',
-          title: '组织架构',
-          icon: 'List',
-          path: 'sys-org-list',
-          status: 1,
-          isMenuShow: true,
-        },
-        {
-          id: '473778965740257283',
-          title: '编辑成员',
-          icon: 'Edit',
-          path: 'sys-org-edit',
-          status: 1,
-          isMenuShow: false,
-        },
-        {
-          id: '473778965740257287',
-          title: '日志管理',
-          icon: 'Document',
-          path: 'sys-log-list',
-          status: 1,
-          isMenuShow: true,
-        },
-      ],
-    },
-  ]
+let idCounter = 100
 
-  mock.onPost('/api/SysMenu/GetUserRightMenu').reply(200, makeResp(menuData, 0, menuData.length))
+function genId(): string {
+  idCounter++
+  return String(idCounter)
+}
+
+interface MockMenu {
+  id: string
+  title: string
+  path?: string
+  icon?: string
+  order: number
+  isMenuShow: boolean
+  status: number
+  parentId: string | null
+}
+
+let menus: MockMenu[] = [
+  { id: '1', title: '首页', path: 'dashboard', icon: 'ep:home-filled', order: 1, isMenuShow: true, status: 1, parentId: null },
+  { id: '2', title: '系统设置', icon: 'ep:setting', order: 2, isMenuShow: true, status: 1, parentId: null },
+  { id: '3', title: '菜单管理', path: 'sys-menu-list', icon: 'ep:menu', order: 1, isMenuShow: true, status: 1, parentId: '2' },
+  { id: '4', title: '角色管理', path: 'sys-role-list', icon: 'ri:shield-user-line', order: 2, isMenuShow: true, status: 1, parentId: '2' },
+  { id: '5', title: '账户管理', path: 'sys-user-list', icon: 'ep:user', order: 3, isMenuShow: true, status: 1, parentId: '2' },
+  { id: '6', title: '组织架构', path: 'sys-org-list', icon: 'ep:list', order: 4, isMenuShow: true, status: 1, parentId: '2' },
+  { id: '7', title: '日志管理', path: 'sys-log-list', icon: 'ep:document', order: 5, isMenuShow: true, status: 1, parentId: '2' },
+]
+
+function buildTree(items: MockMenu[]): unknown[] {
+  const map = new Map<string, unknown>()
+  const roots: unknown[] = []
+
+  for (const item of items) {
+    map.set(item.id, { ...item, children: [] })
+  }
+
+  for (const item of items) {
+    const node = map.get(item.id)
+    if (item.parentId && map.has(item.parentId)) {
+      ;(map.get(item.parentId) as any).children.push(node)
+    } else {
+      roots.push(node)
+    }
+  }
+
+  return roots
+}
+
+function buildFlatList(items: MockMenu[], searchKey?: string): unknown[] {
+  let filtered = items
+  if (searchKey) {
+    const kw = searchKey.toLowerCase()
+    filtered = items.filter(
+      (m) => m.title.toLowerCase().includes(kw) || (m.path || '').toLowerCase().includes(kw),
+    )
+  }
+  return filtered.map((m) => ({ ...m, parent: m.parentId ? { id: m.parentId } : null }))
+}
+
+function toEntity(item: MockMenu): unknown {
+  return {
+    ...item,
+    status: { value: item.status },
+    parent: item.parentId ? { id: item.parentId } : null,
+  }
+}
+
+export function registerSysMenuMock(mock: MockAdapter) {
+  mock.onPost('/api/SysMenu/GetUserRightMenu').reply(() => {
+    const tree = buildTree(menus.filter((m) => m.isMenuShow))
+    return [200, makeResp(tree, 0, tree.length)]
+  })
+
+  mock.onGet('/api/SysMenu/GetMenuTree').reply((config) => {
+    const params = config.params || {}
+    const searchKey = params.searchKey as string | undefined
+    let filtered = menus
+    if (searchKey) {
+      const kw = searchKey.toLowerCase()
+      filtered = menus.filter(
+        (m) => m.title.toLowerCase().includes(kw) || (m.path || '').toLowerCase().includes(kw),
+      )
+    }
+    const tree = buildTree(filtered)
+    return [200, makeResp(tree, 0, tree.length)]
+  })
+
+  mock.onGet('/api/SysMenu/GetMenuList').reply((config) => {
+    const params = config.params || {}
+    const list = buildFlatList(menus, params.searchKey as string | undefined)
+    return [200, makeResp(list, 0, list.length)]
+  })
+
+  mock.onGet('/api/SysMenu/GetMenuEntity').reply((config) => {
+    const params = config.params || {}
+    const id = params.id as string
+    const item = menus.find((m) => m.id === id)
+    if (!item) return [404, makeResp('菜单不存在', -1)]
+    return [200, makeResp(toEntity(item))]
+  })
+
+  mock.onGet('/api/SysMenu/GetParentMenuAll').reply(() => {
+    const list = menus.map((m) => ({ id: m.id, title: m.title }))
+    return [200, makeResp(list)]
+  })
+
+  mock.onPost('/api/SysMenu/CreateMenu').reply((config) => {
+    const data = JSON.parse(config.data)
+    const item: MockMenu = {
+      id: genId(),
+      title: data.title || '',
+      path: data.path || '',
+      icon: data.icon || '',
+      order: data.order ?? 99,
+      isMenuShow: data.isMenuShow ?? true,
+      status: data.status ?? 1,
+      parentId: data.parentId || null,
+    }
+    menus.push(item)
+    return [200, makeResp(null)]
+  })
+
+  mock.onPost('/api/SysMenu/UpdateMenu').reply((config) => {
+    const data = JSON.parse(config.data)
+    const idx = menus.findIndex((m) => m.id === data.id)
+    if (idx === -1) return [404, makeResp('菜单不存在', -1)]
+    menus[idx] = {
+      id: data.id,
+      title: data.title || '',
+      path: data.path || '',
+      icon: data.icon || '',
+      order: data.order ?? 99,
+      isMenuShow: data.isMenuShow ?? true,
+      status: data.status ?? 1,
+      parentId: data.parentId || null,
+    }
+    return [200, makeResp(null)]
+  })
+
+  mock.onPost('/api/SysMenu/DeleteMenu').reply((config) => {
+    const data = JSON.parse(config.data)
+    const ids: string[] = data.ids || []
+    menus = menus.filter((m) => !ids.includes(m.id))
+    return [200, makeResp(null)]
+  })
 }

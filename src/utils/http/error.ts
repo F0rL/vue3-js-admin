@@ -1,17 +1,13 @@
+import axios from 'axios'
 import { message } from '@/utils/feedback'
-import { navigateToError } from '@/utils/navigate-error'
-import type { AxiosError } from 'axios'
+import pinia from '@/stores'
+import { useUserStore } from '@/stores/modules/user'
+import { usePermissionStore } from '@/stores/modules/permission'
+import router from '@/router'
 
-/* ============ 业务错误码常量 ============ */
-export const ERROR_CODES = {
-  INVALID_TOKEN: 50008, // 非法 token
-  TOKEN_EXPIRED: 50012, // token 过期
-  TOKEN_KICKED: 50014, // 被踢下线
-}
-
-/* ============ HTTP 状态码 → 友好提示 ============ */
 const HTTP_STATUS_MESSAGES: Record<number, string> = {
   400: '请求参数有误',
+  401: '登录已过期，请重新登录',
   403: '没有操作权限',
   404: '请求的资源不存在',
   405: '请求方法不允许',
@@ -22,59 +18,52 @@ const HTTP_STATUS_MESSAGES: Record<number, string> = {
   504: '网关超时',
 }
 
-/* ============ 业务码判定 ============ */
-const AUTH_ERROR_CODES = new Set([
-  ERROR_CODES.INVALID_TOKEN,
-  ERROR_CODES.TOKEN_EXPIRED,
-  ERROR_CODES.TOKEN_KICKED,
-])
+let isRelogging = false
 
 export function isSuccess(res: ApiResponse<unknown>): boolean {
   return res.code === 0
 }
 
-/* ============ 路径一：HTTP 200 但业务码异常 ============ */
+/** 情况③：有响应体，code≠0，业务错误 */
 export function handleBusinessError(res: ApiResponse<unknown>) {
-  const { code, msg } = res
-  message.error(msg ? String(msg) : '请求失败')
-
-  if (AUTH_ERROR_CODES.has(code)) {
-    message.error('登录已过期，请重新登录')
-    window.location.href = '/login'
-  }
+  message.error(res.msg ? String(res.msg) : '请求失败')
 }
 
-/* ============ 路径二-A：HTTP 4xx/5xx（有响应体） ============ */
-export function handleHttpError(error: AxiosError<ApiResponse<unknown>>) {
-  const status = error.response?.status
-  const serverMsg = error.response?.data?.msg
+/** 401 鉴权失效：清缓存 + 跳登录页，带防重入锁 */
+function handleUnauthorized() {
+  if (isRelogging) return
+  isRelogging = true
+
+  const userStore = useUserStore(pinia)
+  const permissionStore = usePermissionStore(pinia)
+  userStore.resetToken()
+  permissionStore.resetRoutes()
+  message.error('登录已过期，请重新登录')
+  router.push('/login').finally(() => {
+    isRelogging = false
+  })
+}
+
+/**
+ * 情况①：无响应体（HTTP 非 200、网络异常、请求取消）
+ * @returns true — 需要 reject，让调用方感知错误（loading 态关闭等）
+ *          false — 已内部处理完毕，不 reject（401 跳转中、请求取消）
+ */
+export function handleNetworkError(error: any): boolean {
+  if (axios.isCancel(error)) return false
+
+  const status = error?.response?.status
 
   if (status === 401) {
-    message.error('登录已过期，请重新登录')
-    window.location.href = '/login'
-    return
+    handleUnauthorized()
+    return false
   }
 
-  if (status === 403 || status === 404 || status === 500) {
-    navigateToError(String(status))
-    return
-  }
-
-  const fallback = status !== undefined ? `请求失败 (${status})` : '请求失败'
-  const serverMsgText = serverMsg ? String(serverMsg) : ''
-  const statusMsg = status ? HTTP_STATUS_MESSAGES[status] : ''
-  const msg = serverMsgText || statusMsg || fallback
+  const serverMsg = error?.response?.data?.msg
+  const msg =
+    (serverMsg && String(serverMsg)) ||
+    (status ? HTTP_STATUS_MESSAGES[status] : '') ||
+    (status ? `请求失败 (${status})` : '网络连接失败，请检查网络')
   message.error(msg)
-}
-
-/* ============ 路径二-B：网络层错误（无响应体） ============ */
-export function handleNetworkError(error: any) {
-  if (error?.response) {
-    // 有响应体 → HTTP 4xx/5xx
-    handleHttpError(error)
-  } else if (error?.code === 'ECONNABORTED' || error?.message?.includes('timeout')) {
-    message.error('请求超时，请稍后重试')
-  } else {
-    message.error(error?.message ? String(error.message) : '网络连接失败，请检查网络')
-  }
+  return true
 }

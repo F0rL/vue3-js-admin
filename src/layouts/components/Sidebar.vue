@@ -27,7 +27,8 @@
       @click="appStore.toggleSidebarIconOnly()"
     >
       <el-icon :size="16">
-        <component :is="isCollapse ? iconMap.DArrowRight : iconMap.DArrowLeft" />
+        <IconEpDArrowRight v-if="isCollapse" />
+        <IconEpDArrowLeft v-else />
       </el-icon>
     </div>
   </div>
@@ -39,7 +40,6 @@ import { useRoute } from 'vue-router'
 import { useAppStore } from '@/stores/modules/app'
 import type { MenuItem } from '@/router/utils/filter'
 import { usePermissionStore } from '@/stores/modules/permission'
-import iconMap from '@/icons'
 import SidebarItem from './SidebarItem.vue'
 
 const route = useRoute()

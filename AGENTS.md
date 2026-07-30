@@ -17,6 +17,29 @@ pnpm lint          # ESLint 检查 .vue/.js 文件
 
 ## 原则
 
+### 验证
+
+代码编写完成后，需同时运行以下两项检查确保通过：
+
+```
+pnpm lint       # ESLint 语法+风格检查
+pnpm typecheck  # vue-tsc TypeScript 类型检查
+```
+
+两者职责不同——`lint` 管风格和语法，`typecheck` 管类型推断（如 `类型"never"上不存在属性"open"` 这类编辑器红色报错靠 `typecheck` 捕获）。
+
+### 子组件引用
+
+获取子组件暴露的实例时，统一使用 `useTemplateRef`（Vue 3.5+），禁止 `ref(null)`：
+
+```js
+// ✅ 正确 — 自动从模板 <Xxx ref="xxxRef" /> + defineExpose 推导类型
+const xxxRef = useTemplateRef('xxxRef')
+
+// ❌ 错误 — 类型推断为 Ref<null>，产生假阳性报错
+const xxxRef = ref(null)
+```
+
 ### 优先使用成熟的第三方包，而非自行实现
 
 在针对常见需求编写自定义代码之前，先检查是否有维护良好的社区包已经解决了该问题。示例：

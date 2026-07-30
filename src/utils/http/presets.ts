@@ -43,8 +43,7 @@ export const defaultResponded: RespondedHandlerRecord<HttpAlovaGenerics> = {
     return res
   },
   onError(error) {
-    handleNetworkError(error)
-    return Promise.reject(error)
+    if (handleNetworkError(error)) return Promise.reject(error)
   },
 }
 
@@ -52,7 +51,7 @@ export const defaultResponded: RespondedHandlerRecord<HttpAlovaGenerics> = {
 // GET 30 秒：管理后台列表数据频繁变动，避免长时间脏数据
 // POST/PUT/DELETE：不缓存
 export const defaultCacheFor: GlobalCacheConfig<HttpAlovaGenerics> = {
-  GET: 30 * 1000,
+  GET: 0,
   POST: 0,
   PUT: 0,
   DELETE: 0,

@@ -6,7 +6,8 @@
         @click="appStore.toggleSidebar()"
       >
         <el-icon :size="16">
-          <component :is="appStore.sidebarOpened ? iconMap.Fold : iconMap.Expand" />
+          <IconEpFold v-if="appStore.sidebarOpened" />
+          <IconEpExpand v-else />
         </el-icon>
       </div>
 
@@ -30,11 +31,11 @@
         <template #dropdown>
           <el-dropdown-menu>
             <el-dropdown-item @click="router.push('/')">
-              <el-icon><component :is="iconMap.HomeFilled" /></el-icon>
+              <el-icon><IconEpHomeFilled /></el-icon>
               <span>首页</span>
             </el-dropdown-item>
             <el-dropdown-item divided @click="handleLogout">
-              <el-icon><component :is="iconMap.SwitchButton" /></el-icon>
+              <el-icon><IconEpSwitchButton /></el-icon>
               <span>退出登录</span>
             </el-dropdown-item>
           </el-dropdown-menu>
@@ -51,7 +52,6 @@ import { useAppStore } from '@/stores/modules/app'
 import { useUserStore } from '@/stores/modules/user'
 import { usePermissionStore } from '@/stores/modules/permission'
 import { confirm } from '@/utils/feedback'
-import iconMap from '@/icons'
 
 const route = useRoute()
 const router = useRouter()
