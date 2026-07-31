@@ -1,10 +1,33 @@
+import axios from 'axios'
+import pinia from '@/stores'
+import { useUserStore } from '@/stores/modules/user'
+import { handleNetworkError } from './error'
 import { config } from '@/config'
-import { createHttp } from './create'
+import { createApiHelpers } from './apiHelpers'
 
-// 默认实例（主服务），当前项目唯一实例
-// 未来新增实例（如 httpFile、httpOpen）在此追加 createHttp 调用
-const http = createHttp({ baseURL: config.API_BASE_URL })
+const http = axios.create({
+  baseURL: config.API_BASE_URL,
+  timeout: 15000,
+})
 
+// Token 注入 — 迁移自 alova beforeRequest bearer
+http.interceptors.request.use((reqConfig) => {
+  const userStore = useUserStore(pinia)
+  if (userStore.token) {
+    reqConfig.headers.Authorization = `Bearer ${userStore.token}`
+  }
+  return reqConfig
+})
+
+// HTTP 错误处理 — 迁移自 alova responded.onError
+http.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (handleNetworkError(error)) return Promise.reject(error)
+    return Promise.reject(error)
+  },
+)
+
+// 导出默认 axios 实例 + 预配置的 API 辅助函数
 export default http
-// 供 mock 适配器挂载
-export const axiosInstance = http.axiosInstance
+export const { apiGet, apiPost, apiGetList } = createApiHelpers(http)

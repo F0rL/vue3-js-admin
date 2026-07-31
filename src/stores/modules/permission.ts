@@ -2,7 +2,7 @@ import { ref } from 'vue'
 import { defineStore } from 'pinia'
 import router from '@/router'
 import DefaultLayout from '@/layouts/default/index.vue'
-import { getUserRightMenu } from '@/api/sysMenu'
+import { fetchUserRightMenu } from '@/api/menu/menu.api'
 import { asyncRoutes } from '@/router'
 import { collectMenuPaths, filterRoutes, getFirstVisiblePath } from '@/router/utils/filter'
 import type { MenuItem } from '@/router/utils/filter'
@@ -14,8 +14,7 @@ export const usePermissionStore = defineStore('permission', () => {
   const isRoutesLoaded = ref(false)
 
   async function generateRoutes() {
-    const res = await getUserRightMenu().send()
-    const menus = res.msg as MenuItem[]
+    const menus = (await fetchUserRightMenu()) as MenuItem[]
     menuData.value = menus
 
     const allowedPaths = collectMenuPaths(menus)

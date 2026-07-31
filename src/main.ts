@@ -1,6 +1,8 @@
 import { createApp } from 'vue'
+import { VueQueryPlugin } from '@tanstack/vue-query'
 import pinia from '@/stores'
 import router from './router'
+import { queryClient } from '@/lib/queryClient'
 import App from './App.vue'
 
 // 启用 mock 时动态加载；__USE_MOCK__ 由 vite.config.ts define 在构建期
@@ -13,6 +15,7 @@ async function bootstrap() {
   const app = createApp(App)
   app.use(pinia)
   app.use(router)
+  app.use(VueQueryPlugin, { queryClient, enableDevtoolsV6Plugin: true })
   app.mount('#app')
 }
 

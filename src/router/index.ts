@@ -63,7 +63,7 @@ router.beforeEach(async to => {
     if (!permissionStore.isRoutesLoaded) {
       try {
         if (!userStore.userInfo.name) {
-          await userStore.fetchUserInfo()
+          await userStore.loadUserInfo()
         }
         await permissionStore.generateRoutes()
         return { path: to.path, query: to.query, replace: true }

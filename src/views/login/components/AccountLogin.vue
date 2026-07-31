@@ -6,7 +6,7 @@ import { message } from '@/utils/feedback'
 import { useUserStore } from '@/stores/modules/user'
 import { useRememberStore } from '@/stores/modules/remember'
 import { md5Hash } from '@/utils/encrypt'
-import * as authApi from '@/api/auth'
+import { fetchCaptcha as fetchCaptchaApi } from '@/api/auth/auth.api'
 
 const router = useRouter()
 const route = useRoute()
@@ -46,10 +46,10 @@ const rules = ref({
   captchaCode: [{ required: true, message: '请输入验证码', trigger: 'blur' }],
 })
 
-async function fetchCaptcha() {
-  const { msg } = await authApi.getLoginVerCode().send()
-  captchaImage.value = 'data:image/png;base64,' + msg.base64
-  form.captchaKey = msg.key
+async function loadCaptcha() {
+  const { base64, key } = await fetchCaptchaApi()
+  captchaImage.value = 'data:image/png;base64,' + base64
+  form.captchaKey = key
 }
 
 onMounted(async () => {
@@ -62,7 +62,7 @@ onMounted(async () => {
       form.password = saved.password
     }
   }
-  fetchCaptcha().catch(() => {})
+  loadCaptcha().catch(() => {})
 })
 
 async function handleSubmit() {
@@ -82,14 +82,14 @@ async function handleSubmit() {
     } else {
       rememberStore.clear()
     }
-    await userStore.fetchUserInfo()
+    await userStore.loadUserInfo()
     message.success('登录成功')
     const redirectPath =
       typeof route.query.redirect === 'string' && route.query.redirect ? route.query.redirect : '/'
     await router.push(redirectPath)
   } catch (error) {
     console.error(error)
-    fetchCaptcha()
+    loadCaptcha()
     form.captchaCode = ''
   } finally {
     submitting.value = false
@@ -133,7 +133,7 @@ async function handleSubmit() {
           />
           <div
             class="h-10 w-28 shrink-0 cursor-pointer overflow-hidden rounded-lg border border-slate-200"
-            @click="fetchCaptcha"
+            @click="loadCaptcha"
           >
             <img
               v-if="captchaImage"

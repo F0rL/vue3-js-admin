@@ -1,9 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, onUnmounted, useTemplateRef } from 'vue'
-import { useWatcher } from 'alova/client'
+import { ref, computed, useTemplateRef } from 'vue'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import iconMap from '@/icons'
-import { getMenuTree, getMenuEntity, updateMenu, deleteMenu } from '@/api/sysMenu'
-import type { MenuTreeNode } from '@/api/sysMenu'
+import {
+  fetchMenuEntity,
+  updateMenu,
+  deleteMenu,
+} from '@/api/menu/menu.api'
+import { menuQueries, menuKeys } from '@/api/menu/menu.queries'
+import type { MenuTreeNode } from '@/api/menu/menu.types'
 import { usePermissionStore } from '@/stores/modules/permission'
 import { confirm, message, withLoading } from '@/utils/feedback'
 import MenuForm from './components/MenuForm.vue'
@@ -13,36 +18,61 @@ const switchingId = ref('')
 const tableRef = useTemplateRef('tableRef')
 const menuFormRef = useTemplateRef('menuFormRef')
 
+const queryClient = useQueryClient()
 const permissionStore = usePermissionStore()
 
-const {
-  data: treeRes,
-  loading,
-  send: fetchTree,
-  abort,
-} = useWatcher(() => getMenuTree({ searchKey: searchKey.value }), [searchKey], {
-  immediate: true,
-  abortLast: true,
-  force: true,
-  initialData: undefined,
+const { data: treeData, isPending: loading, refetch } = useQuery({
+  ...menuQueries.tree(searchKey.value ? { searchKey: searchKey.value } : undefined),
 })
 
-const treeData = computed(() => {
-  const res = treeRes.value as { msg?: MenuTreeNode[] } | undefined
-  return res?.msg ?? []
+const treeDataComputed = computed(() => treeData.value ?? [])
+
+const toggleShowMutation = useMutation({
+  mutationFn: async ({ row, val }: { row: any; val: boolean }) => {
+    const entity = await fetchMenuEntity(row.id)
+    if (!entity) throw new Error()
+    await updateMenu({
+      id: row.id,
+      title: entity.title || '',
+      path: entity.path || '',
+      icon: entity.icon || '',
+      order: entity.order ?? 99,
+      isMenuShow: val,
+      parentId: entity.parent?.id ?? null,
+    })
+  },
+  onMutate: ({ row }) => {
+    switchingId.value = row.id
+    return { previousShow: !row.isMenuShow }
+  },
+  onError: (_err, { row }, context) => {
+    row.isMenuShow = context?.previousShow ?? row.isMenuShow
+    message.error('操作失败')
+  },
+  onSettled: async () => {
+    await permissionStore.refreshMenu()
+    switchingId.value = ''
+  },
 })
 
-onUnmounted(() => abort())
+const deleteMutation = useMutation({
+  mutationFn: (ids: string[]) => deleteMenu({ ids }),
+  onSuccess: async () => {
+    message.success('删除成功')
+    await permissionStore.refreshMenu()
+    await queryClient.invalidateQueries({ queryKey: menuKeys.trees() })
+  },
+})
 
 function handleSearch() {
-  fetchTree()
+  refetch()
 }
 
 function handleReset() {
   searchKey.value = ''
 }
 
-function toggleRows(rows: any[], expanded: boolean) {
+function toggleRows(rows: MenuTreeNode[], expanded: boolean) {
   rows.forEach(row => {
     tableRef.value?.toggleRowExpansion(row, expanded)
     if (row.children?.length) {
@@ -52,11 +82,11 @@ function toggleRows(rows: any[], expanded: boolean) {
 }
 
 function handleExpandAll() {
-  toggleRows(treeData.value, true)
+  toggleRows(treeDataComputed.value, true)
 }
 
 function handleCollapseAll() {
-  toggleRows(treeData.value, false)
+  toggleRows(treeDataComputed.value, false)
 }
 
 function openCreate() {
@@ -69,35 +99,12 @@ function openEdit(row: any) {
 
 async function handleSuccess() {
   await permissionStore.refreshMenu()
-  fetchTree()
+  await queryClient.invalidateQueries({ queryKey: menuKeys.trees() })
 }
 
 async function handleToggleShow(row: any, val: boolean) {
-  const previous = row.isMenuShow
   row.isMenuShow = val
-  switchingId.value = row.id
-
-  try {
-    const { msg } = await getMenuEntity({ id: row.id }).send()
-    if (!msg) throw new Error()
-
-    await updateMenu({
-      id: row.id,
-      title: msg.title || '',
-      path: msg.path || '',
-      icon: msg.icon || '',
-      order: msg.order ?? 99,
-      isMenuShow: val,
-      parentId: msg.parent?.id ?? null,
-    }).send()
-
-    await permissionStore.refreshMenu()
-  } catch {
-    row.isMenuShow = previous
-    message.error('操作失败')
-  } finally {
-    switchingId.value = ''
-  }
+  toggleShowMutation.mutate({ row, val })
 }
 
 async function handleDelete(row: any) {
@@ -107,10 +114,7 @@ async function handleDelete(row: any) {
     confirmButtonText: '删除',
   })
   if (!ok) return
-  await withLoading(deleteMenu({ ids: [row.id] }).send(), '删除中...')
-  message.success('删除成功')
-  await permissionStore.refreshMenu()
-  fetchTree()
+  await withLoading(deleteMutation.mutateAsync([row.id]), '删除中...')
 }
 </script>
 
@@ -154,7 +158,7 @@ async function handleDelete(row: any) {
       <el-table
         v-loading="loading"
         ref="tableRef"
-        :data="treeData"
+        :data="treeDataComputed"
         row-key="id"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         header-cell-class-name="text-gray-600 bg-gray-50!"

@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import * as authApi from '@/api/auth'
-import type { LoginPayload, UserInfo } from '@/api/auth'
+import { fetchToken, fetchUserInfo } from '@/api/auth/auth.api'
+import type { LoginPayload, UserInfo } from '@/api/auth/auth.types'
 import { encryptPwdRsa } from '@/utils/encrypt'
 
 export const useUserStore = defineStore(
@@ -20,19 +20,19 @@ export const useUserStore = defineStore(
 
     async function login(loginForm: LoginPayload) {
       const password = encryptPwdRsa(loginForm.password)
-      const { msg } = await authApi.getTokenPC({ ...loginForm, password }).send()
-      token.value = msg
+      const tokenStr = await fetchToken({ ...loginForm, password })
+      token.value = tokenStr
     }
 
-    async function fetchUserInfo() {
-      const { msg } = await authApi.getUserInfo().send()
+    async function loadUserInfo() {
+      const user = await fetchUserInfo()
       userInfo.value = {
-        id: msg.id,
-        name: msg.name,
-        avatar: msg.avatar,
-        roles: msg.roles,
+        id: user.id,
+        name: user.name,
+        avatar: user.avatar,
+        roles: user.roles,
       }
-      return msg
+      return user
     }
 
     async function logout() {
@@ -55,7 +55,7 @@ export const useUserStore = defineStore(
       isLoggedIn,
       roles,
       login,
-      fetchUserInfo,
+      loadUserInfo,
       logout,
       resetToken,
     }

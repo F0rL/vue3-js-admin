@@ -1,10 +1,11 @@
-import type { AxiosInstance } from 'axios'
-import { axiosInstance } from '@/utils/http'
+import http from '@/utils/http'
 import MockAdapter from 'axios-mock-adapter'
 import { registerAuthMock } from './modules/auth'
 import { registerSysMenuMock } from './modules/sysMenu'
+import { registerSysRoleMock } from './modules/sysRole'
 
-const mock: MockAdapter = new MockAdapter(axiosInstance as AxiosInstance, { delayResponse: 300 })
+const mock: MockAdapter = new MockAdapter(http, { delayResponse: 300 })
 
 registerAuthMock(mock)
 registerSysMenuMock(mock)
+registerSysRoleMock(mock)

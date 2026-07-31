@@ -1,11 +1,16 @@
 <script setup lang="ts">
 import { ref, reactive, computed, useTemplateRef } from 'vue'
-import { useRequest } from 'alova/client'
+import { useMutation } from '@tanstack/vue-query'
 import type { FormRules } from 'element-plus'
 import SelectIcon from '@/components/SelectIcon/index.vue'
-import { getParentMenuAll, getMenuEntity, createMenu, updateMenu } from '@/api/sysMenu'
-import type { MenuPayload, MenuTreeNode } from '@/api/sysMenu'
-import { message, withLoading } from '@/utils/feedback'
+import {
+  fetchParentMenuAll,
+  fetchMenuEntity,
+  createMenu,
+  updateMenu,
+} from '@/api/menu/menu.api'
+import type { MenuPayload, MenuTreeNode } from '@/api/menu/menu.types'
+import { message } from '@/utils/feedback'
 
 const emit = defineEmits<{
   success: []
@@ -14,11 +19,20 @@ const emit = defineEmits<{
 const visible = ref(false)
 const editingRow = ref<MenuTreeNode | null>(null)
 const formRef = useTemplateRef('formRef')
-const submitting = ref(false)
 const loading = ref(false)
 const parentList = ref<{ id: string; title: string }[]>([])
 
 const isEdit = computed(() => !!editingRow.value)
+
+const saveMutation = useMutation({
+  mutationFn: (payload: MenuPayload) =>
+    payload.id ? updateMenu(payload) : createMenu(payload),
+  onSuccess: () => {
+    message.success('保存成功')
+    visible.value = false
+    emit('success')
+  },
+})
 
 function createDefaultMenu(): MenuPayload {
   return {
@@ -39,11 +53,6 @@ const rules: FormRules = {
   order: [{ required: true, message: '请输入排序号', trigger: 'blur' }],
 }
 
-const { send: fetchEntity } = useRequest((id: string) => getMenuEntity({ id }), {
-  immediate: false,
-  force: true,
-})
-
 function resetForm() {
   Object.assign(model, createDefaultMenu())
   formRef.value?.clearValidate()
@@ -51,9 +60,8 @@ function resetForm() {
 
 async function loadParents() {
   try {
-    const { msg } = await getParentMenuAll().send()
-    let list: { id: string; title: string }[] = msg
-
+    const data = await fetchParentMenuAll()
+    let list: { id: string; title: string }[] = data
     if (isEdit.value && editingRow.value?.id) {
       list = list.filter(item => item.id !== editingRow.value!.id)
     }
@@ -66,14 +74,14 @@ async function loadParents() {
 async function loadEntity() {
   if (!editingRow.value?.id) return
   try {
-    const { msg } = await fetchEntity(editingRow.value.id)
-    if (!msg) return
-    model.title = msg.title || ''
-    model.path = msg.path || ''
-    model.icon = msg.icon || 'ep:menu'
-    model.order = msg.order ?? 99
-    model.isMenuShow = msg.isMenuShow ?? true
-    model.parentId = msg.parent?.id ?? '-1'
+    const entity = await fetchMenuEntity(editingRow.value.id)
+    if (!entity) return
+    model.title = entity.title || ''
+    model.path = entity.path || ''
+    model.icon = entity.icon || 'ep:menu'
+    model.order = entity.order ?? 99
+    model.isMenuShow = entity.isMenuShow ?? true
+    model.parentId = entity.parent?.id ?? '-1'
   } catch {
     visible.value = false
   }
@@ -93,21 +101,11 @@ async function handleSave() {
     payload.parentId = null
   }
 
-  try {
-    submitting.value = true
-    if (isEdit.value) {
-      payload.id = editingRow.value!.id
-    }
-    const fn = isEdit.value ? updateMenu : createMenu
-    await withLoading(fn(payload).send(), '保存中...')
-    message.success('保存成功')
-    visible.value = false
-    emit('success')
-  } catch {
-    /* error handled by http layer */
-  } finally {
-    submitting.value = false
+  if (isEdit.value) {
+    payload.id = editingRow.value!.id
   }
+
+  saveMutation.mutate(payload)
 }
 
 async function open(row?: MenuTreeNode) {
@@ -128,6 +126,7 @@ async function open(row?: MenuTreeNode) {
 
 defineExpose({ open })
 </script>
+
 <template>
   <el-drawer
     v-model="visible"
@@ -142,7 +141,7 @@ defineExpose({ open })
       :model="model"
       :rules="rules"
       label-width="120px"
-      :disabled="submitting"
+      :disabled="saveMutation.isPending.value"
     >
       <el-form-item label="父级菜单" prop="parentId">
         <el-select v-model="model.parentId" class="w-full">
@@ -183,7 +182,7 @@ defineExpose({ open })
     </el-form>
     <template #footer>
       <el-button @click="visible = false">取消</el-button>
-      <el-button type="primary" :loading="submitting" @click="handleSave">保存</el-button>
+      <el-button type="primary" :loading="saveMutation.isPending.value" @click="handleSave">保存</el-button>
     </template>
   </el-drawer>
 </template>
