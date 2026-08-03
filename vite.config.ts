@@ -14,7 +14,8 @@ export default defineConfig(({ mode }) => {
   return {
     base: env.VITE_APP_BASE_URL || '/',
     define: {
-      __USE_MOCK__: JSON.stringify(true), // 后端就绪后改为 false
+      // 构建期字面量，由 .env 驱动；false 时 mock 分支被 Rollup 彻底 tree-shake
+      __USE_MOCK__: JSON.stringify(env.VITE_APP_USE_MOCK === 'true'),
     },
     plugins: [
       tailwindcss(),

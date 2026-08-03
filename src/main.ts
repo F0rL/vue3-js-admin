@@ -15,7 +15,10 @@ async function bootstrap() {
   const app = createApp(App)
   app.use(pinia)
   app.use(router)
-  app.use(VueQueryPlugin, { queryClient, enableDevtoolsV6Plugin: true })
+  app.use(VueQueryPlugin, {
+    queryClient,
+    enableDevtoolsV6Plugin: import.meta.env.VITE_APP_ENABLE_DEVTOOLS === 'true',
+  })
   app.mount('#app')
 }
 
