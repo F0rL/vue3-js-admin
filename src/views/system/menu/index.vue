@@ -14,13 +14,13 @@ import { usePermissionStore } from '@/stores/modules/permission'
 import { confirm, message, withLoading } from '@/utils/feedback'
 import MenuForm from './components/MenuForm.vue'
 
+const queryClient = useQueryClient()
+const permissionStore = usePermissionStore()
+
 const searchKey = ref('')
 const switchingId = ref('')
 const tableRef = useTemplateRef('tableRef')
 const menuFormRef = useTemplateRef('menuFormRef')
-
-const queryClient = useQueryClient()
-const permissionStore = usePermissionStore()
 
 const {
   data: treeData,

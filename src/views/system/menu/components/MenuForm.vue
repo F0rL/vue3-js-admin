@@ -23,18 +23,6 @@ const formRef = useTemplateRef('formRef')
 const loading = ref(false)
 const parentList = ref<{ id: string; title: string }[]>([])
 
-const isEdit = computed(() => !!editingRow.value)
-
-const saveMutation = useMutation({
-  mutationFn: (payload: MenuPayload) =>
-    payload.id ? updateMenu(payload) : createMenu(payload),
-  onSuccess: () => {
-    message.success('保存成功')
-    visible.value = false
-    emit('success')
-  },
-})
-
 function createDefaultMenu(): MenuPayload {
   return {
     title: '',
@@ -47,12 +35,23 @@ function createDefaultMenu(): MenuPayload {
 }
 
 const model = reactive<MenuPayload>(createDefaultMenu())
-
 const rules: FormRules = {
   parentId: [{ required: true, message: '请选择父级菜单', trigger: 'change' }],
   title: [{ required: true, message: '请输入菜单标题', trigger: 'blur' }],
   order: [{ required: true, message: '请输入排序号', trigger: 'blur' }],
 }
+
+const isEdit = computed(() => !!editingRow.value)
+
+const saveMutation = useMutation({
+  mutationFn: (payload: MenuPayload) =>
+    payload.id ? updateMenu(payload) : createMenu(payload),
+  onSuccess: () => {
+    message.success('保存成功')
+    visible.value = false
+    emit('success')
+  },
+})
 
 function resetForm() {
   Object.assign(model, createDefaultMenu())
@@ -109,6 +108,7 @@ async function handleSave() {
   saveMutation.mutate(payload)
 }
 
+/** 打开新增/编辑菜单抽屉 */
 async function open(row?: MenuTreeNode) {
   editingRow.value = row ?? null
   visible.value = true

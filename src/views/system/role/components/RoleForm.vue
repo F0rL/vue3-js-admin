@@ -17,6 +17,17 @@ const treeRef = useTemplateRef('treeRef')
 const loading = ref(false)
 const expandFlag = ref(true)
 const selectAllFlag = ref(false)
+const formModel = reactive<{ name: string; status: number }>({
+  name: '',
+  status: 1,
+})
+const menuTreeData = ref<MenuTreeNode[]>([])
+const defaultCheckedKeys = ref<string[]>([])
+const treeProps = { children: 'children', label: 'title' }
+
+const rules: FormRules = {
+  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
+}
 
 const isEdit = computed(() => !!editingId.value)
 
@@ -29,19 +40,6 @@ const saveMutation = useMutation({
     emit('success')
   },
 })
-
-const formModel = reactive<{ name: string; status: number }>({
-  name: '',
-  status: 1,
-})
-
-const rules: FormRules = {
-  name: [{ required: true, message: '请输入角色名称', trigger: 'blur' }],
-}
-
-const menuTreeData = ref<MenuTreeNode[]>([])
-const defaultCheckedKeys = ref<string[]>([])
-const treeProps = { children: 'children', label: 'title' }
 
 function resetForm() {
   expandFlag.value = true
@@ -104,6 +102,7 @@ async function handleSave() {
   saveMutation.mutate(payload)
 }
 
+/** 打开新增/编辑角色抽屉 */
 async function open(row?: { id: string }) {
   editingId.value = row?.id ?? ''
   visible.value = true

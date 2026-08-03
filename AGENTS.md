@@ -145,9 +145,13 @@ Store 持有跨页面共享的**应用状态**（token、用户信息、路由�
 
 ### 方法排列顺序
 
-ref/状态 → composables（useQuery/useMutation/store）→ 共享辅助函数 → 事件处理（按界面区域：搜索 → 表格 → 抽屉 → 行操作）。
+```text
+imports → defineProps/defineEmits → composables（无状态依赖） → ref/reactive 状态 →
+computed → composables（依赖状态，如 useQuery/useMutation）→ 共享辅助函数 →
+事件处理（按界面区域分组）→ defineExpose
+```
 
-不需要分块注释标记——代码结构自然表达分块。
+要点：无状态依赖的 composables（`useQueryClient`、`useStore`）前置；依赖本地 ref 的 `useQuery`/`useMutation` 后置。工厂函数紧邻其初始化的状态声明。不需要分块注释标记——代码结构自然表达分块。
 
 ### 注释
 

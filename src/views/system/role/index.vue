@@ -1,13 +1,15 @@
 <script setup lang="ts">
 import { ref, computed, useTemplateRef } from 'vue'
-import { useQuery, keepPreviousData, useMutation, useQueryClient } from '@tanstack/vue-query'
+import { useQuery, keepPreviousData, useQueryClient } from '@tanstack/vue-query'
 import { fetchRoleList, deleteRole, roleKeys } from '@/api/role'
 import { confirm, message, withLoading } from '@/utils/feedback'
 import RoleForm from './components/RoleForm.vue'
 
 const queryClient = useQueryClient()
+
 const pageIndex = ref(1)
 const pageSize = ref(10)
+const roleFormRef = useTemplateRef('roleFormRef')
 
 const {
   data: listRes,
@@ -21,35 +23,30 @@ const {
 const tableData = computed(() => listRes.value?.items ?? [])
 const total = computed(() => listRes.value?.total ?? 0)
 
-const deleteMutation = useMutation({
-  mutationFn: (ids: string[]) => deleteRole({ ids }),
-  onSuccess: async () => {
-    message.success('删除成功')
-    await queryClient.invalidateQueries({ queryKey: roleKeys.lists() })
-  },
-})
-
-const roleFormRef = useTemplateRef('roleFormRef')
-
 function isSystemRole(id: string): boolean {
   return id === '10086'
 }
 
+/** 打开新增角色抽屉 */
 function handleAdd() {
   roleFormRef.value?.open()
 }
 
+/** 打开编辑角色抽屉 */
 function handleEdit(row: any) {
   roleFormRef.value?.open(row)
 }
 
+/** 删除角色 */
 async function handleDelete(row: any) {
   const ok = await confirm(`确定删除角色「${row.name}」？`, '删除确认', {
     type: 'error',
     confirmButtonText: '删除',
   })
   if (!ok) return
-  await withLoading(deleteMutation.mutateAsync([row.id]), '删除中...')
+  await withLoading(deleteRole({ ids: [row.id] }), '删除中...')
+  message.success('删除成功')
+  await queryClient.invalidateQueries({ queryKey: roleKeys.lists() })
 }
 
 function handleSuccess() {
