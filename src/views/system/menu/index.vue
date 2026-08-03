@@ -1,14 +1,15 @@
 <script setup lang="ts">
-import { ref, computed, useTemplateRef } from 'vue'
+import { ref, useTemplateRef } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
 import iconMap from '@/icons'
 import {
+  fetchMenuTree,
   fetchMenuEntity,
   updateMenu,
   deleteMenu,
-} from '@/api/menu/menu.api'
-import { menuQueries, menuKeys } from '@/api/menu/menu.queries'
-import type { MenuTreeNode } from '@/api/menu/menu.types'
+  menuKeys,
+  type MenuTreeNode,
+} from '@/api/menu'
 import { usePermissionStore } from '@/stores/modules/permission'
 import { confirm, message, withLoading } from '@/utils/feedback'
 import MenuForm from './components/MenuForm.vue'
@@ -21,18 +22,21 @@ const menuFormRef = useTemplateRef('menuFormRef')
 const queryClient = useQueryClient()
 const permissionStore = usePermissionStore()
 
-const { data: treeData, isPending: loading, refetch } = useQuery({
-  ...menuQueries.tree(searchKey.value ? { searchKey: searchKey.value } : undefined),
+const {
+  data: treeData,
+  isPending: loading,
+  refetch,
+} = useQuery({
+  queryKey: menuKeys.trees(),
+  queryFn: () => fetchMenuTree(searchKey.value ? { searchKey: searchKey.value } : undefined),
 })
 
-const treeDataComputed = computed(() => treeData.value ?? [])
-
 const toggleShowMutation = useMutation({
-  mutationFn: async ({ row, val }: { row: any; val: boolean }) => {
-    const entity = await fetchMenuEntity(row.id)
+  mutationFn: async ({ rowId, val }: { rowId: string; val: boolean }) => {
+    const entity = await fetchMenuEntity(rowId)
     if (!entity) throw new Error()
     await updateMenu({
-      id: row.id,
+      id: rowId,
       title: entity.title || '',
       path: entity.path || '',
       icon: entity.icon || '',
@@ -41,35 +45,22 @@ const toggleShowMutation = useMutation({
       parentId: entity.parent?.id ?? null,
     })
   },
-  onMutate: ({ row }) => {
-    switchingId.value = row.id
-    return { previousShow: !row.isMenuShow }
+  onMutate: ({ rowId }) => {
+    switchingId.value = rowId
   },
-  onError: (_err, { row }, context) => {
-    row.isMenuShow = context?.previousShow ?? row.isMenuShow
+  onSuccess: () => onMenuChanged(),
+  onError: () => {
     message.error('操作失败')
   },
-  onSettled: async () => {
-    await permissionStore.refreshMenu()
+  onSettled: () => {
     switchingId.value = ''
   },
 })
 
-const deleteMutation = useMutation({
-  mutationFn: (ids: string[]) => deleteMenu({ ids }),
-  onSuccess: async () => {
-    message.success('删除成功')
-    await permissionStore.refreshMenu()
-    await queryClient.invalidateQueries({ queryKey: menuKeys.trees() })
-  },
-})
-
-function handleSearch() {
-  refetch()
-}
-
-function handleReset() {
-  searchKey.value = ''
+/** 菜单数据变更后刷新侧边栏导航 + 表格数据 */
+async function onMenuChanged() {
+  await permissionStore.refreshMenu()
+  await queryClient.invalidateQueries({ queryKey: menuKeys.trees() })
 }
 
 function toggleRows(rows: MenuTreeNode[], expanded: boolean) {
@@ -81,32 +72,42 @@ function toggleRows(rows: MenuTreeNode[], expanded: boolean) {
   })
 }
 
+function handleSearch() {
+  refetch()
+}
+
+function handleReset() {
+  searchKey.value = ''
+}
+
 function handleExpandAll() {
-  toggleRows(treeDataComputed.value, true)
+  toggleRows(treeData.value ?? [], true)
 }
 
 function handleCollapseAll() {
-  toggleRows(treeDataComputed.value, false)
+  toggleRows(treeData.value ?? [], false)
 }
 
+/** 打开新增菜单抽屉 */
 function openCreate() {
   menuFormRef.value?.open()
 }
 
+/** 打开编辑菜单抽屉 */
 function openEdit(row: any) {
   menuFormRef.value?.open(row)
 }
 
-async function handleSuccess() {
-  await permissionStore.refreshMenu()
-  await queryClient.invalidateQueries({ queryKey: menuKeys.trees() })
+function handleSuccess() {
+  onMenuChanged()
 }
 
+/** 切换侧边栏展示状态 */
 async function handleToggleShow(row: any, val: boolean) {
-  row.isMenuShow = val
-  toggleShowMutation.mutate({ row, val })
+  toggleShowMutation.mutate({ rowId: row.id, val })
 }
 
+/** 删除菜单 */
 async function handleDelete(row: any) {
   if (row._disabled) return
   const ok = await confirm(`确定删除菜单「${row.title}」？`, '删除确认', {
@@ -114,7 +115,9 @@ async function handleDelete(row: any) {
     confirmButtonText: '删除',
   })
   if (!ok) return
-  await withLoading(deleteMutation.mutateAsync([row.id]), '删除中...')
+  await withLoading(deleteMenu({ ids: [row.id] }), '删除中...')
+  message.success('删除成功')
+  await onMenuChanged()
 }
 </script>
 
@@ -158,7 +161,7 @@ async function handleDelete(row: any) {
       <el-table
         v-loading="loading"
         ref="tableRef"
-        :data="treeDataComputed"
+        :data="treeData"
         row-key="id"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
         header-cell-class-name="text-gray-600 bg-gray-50!"
@@ -195,6 +198,7 @@ async function handleDelete(row: any) {
         </el-table-column>
       </el-table>
     </div>
+
     <MenuForm ref="menuFormRef" @success="handleSuccess" />
   </div>
 </template>

@@ -1,7 +1,6 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
-import { fetchToken, fetchUserInfo } from '@/api/auth/auth.api'
-import type { LoginPayload, UserInfo } from '@/api/auth/auth.types'
+import { fetchToken, fetchUserInfo, type LoginPayload, type UserInfo } from '@/api/auth'
 import { encryptPwdRsa } from '@/utils/encrypt'
 
 export const useUserStore = defineStore(

@@ -6,7 +6,7 @@ import { message } from '@/utils/feedback'
 import { useUserStore } from '@/stores/modules/user'
 import { useRememberStore } from '@/stores/modules/remember'
 import { md5Hash } from '@/utils/encrypt'
-import { fetchCaptcha as fetchCaptchaApi } from '@/api/auth/auth.api'
+import { fetchCaptcha as fetchCaptchaApi } from '@/api/auth'
 
 const router = useRouter()
 const route = useRoute()

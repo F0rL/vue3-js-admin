@@ -8,8 +8,9 @@ import {
   fetchMenuEntity,
   createMenu,
   updateMenu,
-} from '@/api/menu/menu.api'
-import type { MenuPayload, MenuTreeNode } from '@/api/menu/menu.types'
+  type MenuPayload,
+  type MenuTreeNode,
+} from '@/api/menu'
 import { message } from '@/utils/feedback'
 
 const emit = defineEmits<{

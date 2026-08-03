@@ -1,5 +1,32 @@
 import { apiGet, apiPost } from '@/utils/http'
-import type { MenuTreeNode, MenuPayload } from './menu.types'
+
+// ==================== Types ====================
+
+export interface MenuTreeNode {
+  id: string
+  title: string
+  path?: string
+  icon?: string
+  order?: number
+  createTime?: string
+  isMenuShow?: boolean
+  _disabled?: boolean
+  parent?: { id: string } | null
+  sysFile?: { sysFileId: string; url: string }
+  children?: MenuTreeNode[]
+}
+
+export interface MenuPayload {
+  id?: string
+  title: string
+  path?: string
+  icon?: string
+  order: number
+  isMenuShow: boolean
+  parentId: string | null
+}
+
+// ==================== API Functions ====================
 
 export function fetchUserRightMenu(): Promise<unknown> {
   return apiPost('/SysMenu/GetUserRightMenu')
@@ -27,4 +54,11 @@ export function updateMenu(data: MenuPayload) {
 
 export function deleteMenu(data: { ids: string[] }) {
   return apiPost('/SysMenu/DeleteMenu', data)
+}
+
+// ==================== Query Keys ====================
+
+export const menuKeys = {
+  all: ['menus'] as const,
+  trees: () => [...menuKeys.all, 'tree'] as const,
 }

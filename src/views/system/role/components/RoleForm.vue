@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive, computed, useTemplateRef } from 'vue'
 import { useMutation } from '@tanstack/vue-query'
-import { fetchRoleEntity, createRole, updateRole } from '@/api/role/role.api'
-import type { RolePayload } from '@/api/role/role.types'
-import { fetchMenuTree } from '@/api/menu/menu.api'
-import type { MenuTreeNode } from '@/api/menu/menu.types'
+import { fetchRoleEntity, createRole, updateRole, type RolePayload } from '@/api/role'
+import { fetchMenuTree, type MenuTreeNode } from '@/api/menu'
 import type { FormRules } from 'element-plus'
 import { message } from '@/utils/feedback'
 

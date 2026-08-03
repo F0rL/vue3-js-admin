@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import { ref, computed, useTemplateRef } from 'vue'
 import { useQuery, keepPreviousData, useMutation, useQueryClient } from '@tanstack/vue-query'
-import { deleteRole } from '@/api/role/role.api'
-import { roleQueries, roleKeys } from '@/api/role/role.queries'
+import { fetchRoleList, deleteRole, roleKeys } from '@/api/role'
 import { confirm, message, withLoading } from '@/utils/feedback'
 import RoleForm from './components/RoleForm.vue'
 
@@ -14,7 +13,8 @@ const {
   data: listRes,
   isPending: loading,
 } = useQuery({
-  ...roleQueries.list({ pageIndex: pageIndex.value, pageSize: pageSize.value }),
+  queryKey: roleKeys.lists(),
+  queryFn: () => fetchRoleList({ pageIndex: pageIndex.value, pageSize: pageSize.value }),
   placeholderData: keepPreviousData,
 })
 
