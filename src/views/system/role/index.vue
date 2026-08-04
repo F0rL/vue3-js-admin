@@ -15,7 +15,7 @@ const roleFormRef = useTemplateRef('roleFormRef')
 
 const {
   data: listRes,
-  isPending: loading,
+  isFetching: loading,
 } = useQuery({
   queryKey: [...roleKeys.lists(), pageIndex, pageSize],
   queryFn: () => fetchRoleList({ pageIndex: pageIndex.value, pageSize: pageSize.value }),
