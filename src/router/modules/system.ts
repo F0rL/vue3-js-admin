@@ -27,18 +27,6 @@ export default [
     meta: { title: '组织架构' },
   },
   {
-    path: 'sys-org-add',
-    name: 'SystemOrgAdd',
-    component: () => import('@/views/system/org/add.vue'),
-    meta: { title: '新增成员', hidden: true },
-  },
-  {
-    path: 'sys-org-edit',
-    name: 'SystemOrgEdit',
-    component: () => import('@/views/system/org/edit.vue'),
-    meta: { title: '编辑成员', hidden: true },
-  },
-  {
     path: 'sys-role-list',
     name: 'SystemRoleList',
     component: () => import('@/views/system/role/index.vue'),

@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useWindowSize } from '@vueuse/core'
 import { fetchOrgTree, type OrgTreeNode } from '@/api/work'
 
 interface SelectedItem {
@@ -24,16 +23,6 @@ const selectedMap = ref<Map<string, SelectedItem>>(new Map())
 const resolvePromise = ref<((value: SelectedItem[] | null) => void) | null>(null)
 
 const selectedList = computed(() => Array.from(selectedMap.value.values()))
-
-const { width: windowWidth } = useWindowSize()
-
-/** 小屏（<768px）切换为全屏弹窗 */
-const isFullscreen = computed(() => windowWidth.value < 768)
-
-/** 大屏弹框宽度，全屏时不生效 */
-const dialogWidth = computed(() =>
-  isFullscreen.value ? undefined : 'min(700px, calc(100vw - 32px))',
-)
 
 const treeType = computed(() => {
   if (selectType.value === 'user') return 2
@@ -208,7 +197,7 @@ defineExpose({ open })
           已选择
           <span
             v-if="selectedList.length"
-            class="inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-medium leading-none text-white"
+            class="inline-flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-primary px-1.5 text-[11px] font-medium leading-none text-white"
           >
             {{ selectedList.length }}
           </span>
