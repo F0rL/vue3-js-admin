@@ -30,7 +30,7 @@ export interface ProTableColumn<T = any> {
 const props = withDefaults(
   defineProps<{
     columns: ProTableColumn<T>[]
-    data: T[]
+    data?: T[]
     loading?: boolean
     rowKey?: string
     treeProps?: Record<string, any>
@@ -105,9 +105,9 @@ function cellText(col: ProTableColumn<T>, row: T, index: number): unknown {
 
 /**
  * el-tag type 解析：
- *   仅从 valueEnum 条目获取 per-value 配色，未命中回退 `undefined` → 模板侧 `?? ''` 渲染默认灰色 tag
+ *   仅从 valueEnum 条目获取 per-value 配色，未命中回退 `undefined` → 模板侧 `?? 'info'` 渲染默认灰色 tag
  */
-function cellTagType(col: ProTableColumn<T>, row: T): string | undefined {
+function cellTagType(col: ProTableColumn<T>, row: T): ProTableTagType | undefined {
   return resolveEnum(col, row)?.type
 }
 
@@ -154,7 +154,7 @@ defineExpose({ elTableRef })
           :index="scope.$index"
           :column="scope.column"
         />
-        <el-tag v-else-if="col.type === 'tag'" :type="cellTagType(col, scope.row) ?? ''">
+        <el-tag v-else-if="col.type === 'tag'" :type="cellTagType(col, scope.row) ?? 'info'">
           {{ cellText(col, scope.row, scope.$index) }}
         </el-tag>
         <span v-else>{{ cellText(col, scope.row, scope.$index) }}</span>

@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { ref, computed, useTemplateRef } from 'vue'
 import { useQuery, keepPreviousData, useQueryClient } from '@tanstack/vue-query'
-import { fetchRoleList, deleteRole, roleKeys } from '@/api/role'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProTableColumn } from '@/components/ProTable/index.vue'
+import { fetchRoleList, deleteRole, roleKeys, type RoleListItem } from '@/api/role'
 import { confirm, message, withLoading } from '@/utils/feedback'
 import RoleForm from './components/RoleForm.vue'
 
@@ -15,13 +17,19 @@ const {
   data: listRes,
   isPending: loading,
 } = useQuery({
-  queryKey: roleKeys.lists(),
+  queryKey: [...roleKeys.lists(), pageIndex, pageSize],
   queryFn: () => fetchRoleList({ pageIndex: pageIndex.value, pageSize: pageSize.value }),
   placeholderData: keepPreviousData,
 })
 
 const tableData = computed(() => listRes.value?.items ?? [])
 const total = computed(() => listRes.value?.total ?? 0)
+
+const columns: ProTableColumn<RoleListItem>[] = [
+  { type: 'index', label: '序号', width: 80, align: 'center' },
+  { prop: 'name', label: '角色名称', minWidth: 160 },
+  { label: '操作', width: 160, align: 'center', fixed: 'right', slot: 'action' },
+]
 
 function isSystemRole(id: string): boolean {
   return id === '10086'
@@ -56,47 +64,33 @@ function handleSuccess() {
 
 <template>
   <div class="space-y-4">
-    <div class="rounded bg-white p-4 shadow-sm">
+    <div class="p-4 rounded bg-white shadow-sm">
       <div class="flex items-center mb-4">
         <el-button type="primary" @click="handleAdd">
           <template #icon><IconEpPlus /></template>
           新增
         </el-button>
       </div>
-      <el-table
-        v-loading="loading"
+      <ProTable
+        v-model:current-page="pageIndex"
+        v-model:page-size="pageSize"
+        :columns="columns"
         :data="tableData"
-        row-key="id"
-        stripe
-        header-cell-class-name="text-gray-600 bg-gray-50!"
-        empty-text="暂无数据"
+        :loading="loading"
+        :total="total"
+        paginated
       >
-        <el-table-column type="index" label="序号" width="80" align="center" />
-        <el-table-column prop="name" label="角色名称" min-width="160" />
-        <el-table-column label="操作" width="160" align="center" fixed="right">
-          <template #default="{ row }">
-            <el-tooltip v-if="isSystemRole(row.id)" content="系统内置，不可编辑" placement="top">
-              <el-button type="primary" link disabled>编辑</el-button>
-            </el-tooltip>
-            <el-button v-else type="primary" link @click="handleEdit(row)"> 编辑 </el-button>
-            <el-tooltip v-if="isSystemRole(row.id)" content="系统内置，不可删除" placement="top">
-              <el-button type="danger" link disabled>删除</el-button>
-            </el-tooltip>
-            <el-button v-else type="danger" link @click="handleDelete(row)"> 删除 </el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-      <div class="mt-4 flex justify-end">
-        <el-pagination
-          v-model:current-page="pageIndex"
-          v-model:page-size="pageSize"
-          :total="total"
-          :page-sizes="[10, 20, 50]"
-          layout="total, sizes, prev, pager, next"
-          background
-          @size-change="pageIndex = 1"
-        />
-      </div>
+        <template #action="{ row }">
+          <el-tooltip v-if="isSystemRole(row.id)" content="系统内置，不可编辑" placement="top">
+            <el-button type="primary" link disabled>编辑</el-button>
+          </el-tooltip>
+          <el-button v-else type="primary" link @click="handleEdit(row)"> 编辑 </el-button>
+          <el-tooltip v-if="isSystemRole(row.id)" content="系统内置，不可删除" placement="top">
+            <el-button type="danger" link disabled>删除</el-button>
+          </el-tooltip>
+          <el-button v-else type="danger" link @click="handleDelete(row)"> 删除 </el-button>
+        </template>
+      </ProTable>
     </div>
     <RoleForm ref="roleFormRef" @success="handleSuccess" />
   </div>

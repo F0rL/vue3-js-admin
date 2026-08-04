@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, useTemplateRef } from 'vue'
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query'
+import ProTable from '@/components/ProTable/index.vue'
+import type { ProTableColumn } from '@/components/ProTable/index.vue'
 import iconMap from '@/icons'
 import {
   fetchMenuTree,
@@ -19,7 +21,7 @@ const permissionStore = usePermissionStore()
 
 const searchKey = ref('')
 const switchingId = ref('')
-const tableRef = useTemplateRef('tableRef')
+const proTableRef = useTemplateRef('proTableRef')
 const menuFormRef = useTemplateRef('menuFormRef')
 
 const {
@@ -57,6 +59,15 @@ const toggleShowMutation = useMutation({
   },
 })
 
+const columns: ProTableColumn<MenuTreeNode>[] = [
+  { prop: 'title', label: '菜单标题', minWidth: 160 },
+  { prop: 'path', label: '路由路径', minWidth: 140 },
+  { label: '图标', width: 80, align: 'center', slot: 'icon' },
+  { label: '侧边栏展示', width: 130, align: 'center', slot: 'show' },
+  { prop: 'order', label: '排序号', width: 80, align: 'center' },
+  { label: '操作', width: 160, align: 'center', fixed: 'right', slot: 'action' },
+]
+
 /** 菜单数据变更后刷新侧边栏导航 + 表格数据 */
 async function onMenuChanged() {
   await permissionStore.refreshMenu()
@@ -65,7 +76,7 @@ async function onMenuChanged() {
 
 function toggleRows(rows: MenuTreeNode[], expanded: boolean) {
   rows.forEach(row => {
-    tableRef.value?.toggleRowExpansion(row, expanded)
+    proTableRef.value?.elTableRef?.toggleRowExpansion(row, expanded)
     if (row.children?.length) {
       toggleRows(row.children, expanded)
     }
@@ -158,45 +169,33 @@ async function handleDelete(row: any) {
           收起全部
         </el-button>
       </div>
-      <el-table
-        v-loading="loading"
-        ref="tableRef"
+      <ProTable
+        ref="proTableRef"
+        :columns="columns"
         :data="treeData"
-        row-key="id"
+        :loading="loading"
         :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
-        header-cell-class-name="text-gray-600 bg-gray-50!"
-        stripe
-        empty-text="暂无数据"
       >
-        <el-table-column prop="title" label="菜单标题" min-width="160" />
-        <el-table-column prop="path" label="路由路径" min-width="140" />
-        <el-table-column label="图标" width="80" align="center">
-          <template #default="{ row }">
-            <el-icon v-if="row.icon && iconMap[row.icon]" :size="18">
-              <component :is="iconMap[row.icon]" />
-            </el-icon>
-            <span v-else class="text-xs text-gray-400">-</span>
-          </template>
-        </el-table-column>
-        <el-table-column label="侧边栏展示" width="130" align="center">
-          <template #default="{ row }">
-            <el-switch
-              :model-value="row.isMenuShow !== false"
-              :loading="switchingId === row.id"
-              @change="(val: boolean) => handleToggleShow(row, val)"
-            />
-          </template>
-        </el-table-column>
-        <el-table-column prop="order" label="排序号" width="80" align="center" />
-        <el-table-column label="操作" width="160" align="center" fixed="right">
-          <template #default="{ row }">
-            <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
-            <el-button type="danger" link :disabled="row._disabled" @click="handleDelete(row)"
-              >删除</el-button
-            >
-          </template>
-        </el-table-column>
-      </el-table>
+        <template #icon="{ row }">
+          <el-icon v-if="row.icon && iconMap[row.icon]" :size="18">
+            <component :is="iconMap[row.icon]" />
+          </el-icon>
+          <span v-else class="text-xs text-gray-400">-</span>
+        </template>
+        <template #show="{ row }">
+          <el-switch
+            :model-value="row.isMenuShow !== false"
+            :loading="switchingId === row.id"
+            @change="(val: boolean) => handleToggleShow(row, val)"
+          />
+        </template>
+        <template #action="{ row }">
+          <el-button type="primary" link @click="openEdit(row)">编辑</el-button>
+          <el-button type="danger" link :disabled="row._disabled" @click="handleDelete(row)"
+            >删除</el-button
+          >
+        </template>
+      </ProTable>
     </div>
 
     <MenuForm ref="menuFormRef" @success="handleSuccess" />
