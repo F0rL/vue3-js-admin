@@ -14,6 +14,8 @@ export interface ProTableColumn<T = any> {
   fixed?: boolean | 'left' | 'right'
   sortable?: boolean | 'custom'
   showOverflowTooltip?: boolean
+  /** 选择列：行是否可勾选 */
+  selectable?: (row: T, index: number) => boolean
   /** 纯文本转换，`row: T` 类型安全 */
   formatter?: (row: T, column: any, cellValue: any, index: number) => unknown
   /** 字典映射；键为字段原始值，`text` 为显示文本，`type` 为 tag 颜色（仅 `type: 'tag'` 时生效） */

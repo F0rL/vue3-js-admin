@@ -8,12 +8,6 @@ export default [
     meta: { title: '账户管理' },
   },
   {
-    path: 'sys-user-edit',
-    name: 'SystemUserEdit',
-    component: () => import('@/views/system/user/edit.vue'),
-    meta: { title: '账户编辑', hidden: true },
-  },
-  {
     path: 'sys-log-list',
     name: 'SystemLogList',
     component: () => import('@/views/system/log/index.vue'),
